@@ -1026,6 +1026,16 @@ function renderSistema() {
   const wrap = document.getElementById('nftDiagramaWrap');
   wrap.innerHTML = generarSVGDiagrama(cfg);
 
+  // Añadir event listeners DESPUÉS de insertar el SVG en el DOM
+  // (onclick inline en SVG dinámico no funciona en Safari/iOS)
+  wrap.querySelectorAll('.nft-cesta-tap').forEach(el => {
+    el.addEventListener('click', function() {
+      const t = parseInt(this.getAttribute('data-tubo'));
+      const c = parseInt(this.getAttribute('data-cesta'));
+      abrirModalCestaNFT(t, c);
+    });
+  });
+
   // Resultado bomba
   const br = document.getElementById('bombaResult');
   br.style.display = 'block';
