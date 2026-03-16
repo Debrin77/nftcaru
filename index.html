@@ -1,1 +1,1297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NFTCARU">
+<meta name="theme-color" content="#0369a1">
+<title>NFTCARU — Sistema NFT Hidropónico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f0f9ff;
+  --bg2:      #ffffff;
+  --bg3:      #e0f2fe;
+  --border:   rgba(0,0,0,0.10);
+  --blue:     #0369a1;
+  --blue2:    #0284c7;
+  --blue-pale:#e0f2fe;
+  --green:    #16a34a;
+  --gold:     #d97706;
+  --red:      #dc2626;
+  --white:    #111827;
+  --muted:    #374151;
+  --font-display: 'Syne', sans-serif;
+  --font-mono:    'Inconsolata', monospace;
+  --tab-h:    calc(54px + env(safe-area-inset-bottom, 34px));
+  --header-h: calc(52px + env(safe-area-inset-top, 0px));
+  --touch-min: 44px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; height: -webkit-fill-available; }
+body {
+  height: 100%; height: -webkit-fill-available;
+  background: var(--bg); color: var(--white);
+  font-family: var(--font-mono); font-size: 14px;
+  overflow: hidden; overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ══ SPLASH ══ */
+.splash {
+  position: fixed; inset: 0; background: #0c1a2e;
+  z-index: 9998; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 0;
+  padding: 0 16px; overflow: hidden;
+  animation: splashFadeOut 0.6s ease-in 2.5s forwards;
+}
+@keyframes splashFadeOut {
+  0%   { opacity: 1; } 100% { opacity: 0; pointer-events: none; }
+}
+.splash-icon {
+  font-size: 80px; margin-bottom: 16px;
+  animation: splashBounce 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
+  filter: drop-shadow(0 0 20px rgba(56,189,248,0.5));
+}
+@keyframes splashBounce {
+  from { opacity:0; transform: scale(0.5); }
+  to   { opacity:1; transform: scale(1); }
+}
+.splash-title {
+  font-family: var(--font-display); font-size: 40px; font-weight: 900;
+  letter-spacing: -1px; text-align: center;
+  animation: splashUp 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;
+}
+.splash-title .t-nft  { color: #38bdf8; }
+.splash-title .t-caru { color: #fbbf24; }
+@keyframes splashUp {
+  from { opacity:0; transform: translateY(20px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.splash-sub {
+  font-family: var(--font-display); font-size: 12px; font-weight: 600;
+  color: rgba(56,189,248,0.6); letter-spacing: 3px; text-transform: uppercase;
+  margin-top: 6px;
+  animation: splashUp 0.5s ease 0.6s both;
+}
+.splash-bar {
+  margin-top: 32px; width: 48px; height: 3px;
+  background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;
+  animation: splashUp 0.3s ease 0.7s both;
+}
+.splash-bar-fill {
+  height: 100%; background: linear-gradient(90deg,#38bdf8,#fbbf24);
+  border-radius: 2px; animation: splashLoad 2.2s ease-out 0.15s forwards; width:0;
+}
+@keyframes splashLoad { 0%{width:0} 60%{width:75%} 100%{width:100%} }
+
+/* ══ PIN ══ */
+.pin-screen {
+  position: fixed; inset: 0;
+  background: linear-gradient(160deg,#e0f2fe,#f0f9ff);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 9999; gap: 18px;
+  padding: env(safe-area-inset-top,47px) 20px env(safe-area-inset-bottom,34px);
+}
+.pin-logo { font-family:var(--font-display); font-size:30px; font-weight:900; }
+.pin-logo .t-nft  { color: #0369a1; }
+.pin-logo .t-caru { color: #d97706; }
+.pin-sub  { font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.pin-dots { display:flex; gap:14px; }
+.pin-dot  { width:14px; height:14px; border-radius:50%; border:2px solid #bae6fd; background:#f0f9ff; transition:all 0.2s; }
+.pin-dot.on  { background:#0369a1; border-color:#0369a1; box-shadow:0 0 8px rgba(3,105,161,0.4); }
+.pin-dot.err { background:#dc2626; border-color:#dc2626; }
+.pin-err { font-size:12px; color:#dc2626; height:16px; }
+.pin-pad { display:grid; grid-template-columns:repeat(3,68px); gap:10px; }
+.pin-key {
+  width:68px; height:68px; border-radius:50%;
+  border:1.5px solid #bae6fd; background:#fff;
+  color:var(--white); font-family:var(--font-display); font-size:22px; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all 0.12s; box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  user-select:none;
+}
+.pin-key:active { background:#e0f2fe; transform:scale(0.90); }
+.pin-key.del    { font-size:16px; color:#dc2626; border-color:rgba(220,38,38,0.3); }
+.pin-key.empty  { border:none; background:transparent; box-shadow:none; }
+
+/* ══ APP SHELL ══ */
+.app {
+  position:fixed; inset:0; display:flex; flex-direction:column; z-index:1;
+  max-width:430px; margin:0 auto;
+}
+.header {
+  height:var(--header-h); background:var(--bg2);
+  border-bottom:1.5px solid var(--border);
+  box-shadow:0 1px 8px rgba(0,0,0,0.06);
+  display:flex; align-items:flex-end; justify-content:space-between;
+  padding:0 16px 10px; padding-top:env(safe-area-inset-top,47px);
+  flex-shrink:0;
+}
+.header-logo { font-family:var(--font-display); font-size:20px; font-weight:900; }
+.header-logo .t-nft  { color:#0369a1; }
+.header-logo .t-caru { color:#d97706; }
+.header-right { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); }
+.status-dot { width:7px; height:7px; border-radius:50%; background:#0369a1; box-shadow:0 0 6px rgba(3,105,161,0.5); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.content { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior-y:contain; padding-bottom:16px; }
+.tab-panel { display:none; padding:14px 12px; }
+.tab-panel.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.tab-panel.active > * { animation:fadeUp 0.22s cubic-bezier(0.16,1,0.3,1) forwards; opacity:0; }
+.tab-panel.active > *:nth-child(1){animation-delay:0s}
+.tab-panel.active > *:nth-child(2){animation-delay:0.05s}
+.tab-panel.active > *:nth-child(3){animation-delay:0.10s}
+.tab-panel.active > *:nth-child(4){animation-delay:0.15s}
+.tab-panel.active > *:nth-child(5){animation-delay:0.18s}
+
+.tab-bar {
+  height:var(--tab-h); background:var(--bg2);
+  border-top:1.5px solid var(--border);
+  box-shadow:0 -1px 8px rgba(0,0,0,0.06);
+  display:flex; align-items:flex-start; flex-shrink:0;
+  padding-bottom:env(safe-area-inset-bottom,34px); padding-top:4px;
+}
+.tab-btn {
+  flex:1; height:54px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:2px;
+  cursor:pointer; border:none; background:transparent;
+  color:#9ca3af; font-family:var(--font-mono); font-size:9px;
+  letter-spacing:0.2px; text-transform:uppercase; padding:0 2px;
+  position:relative; user-select:none; transition:color 0.2s;
+}
+.tab-btn svg { width:22px; height:22px; transition:transform 0.15s; }
+.tab-btn:active svg { transform:scale(0.88); }
+.tab-btn#btn-sistema  { --tab-color:#0369a1; }
+.tab-btn#btn-plantas  { --tab-color:#16a34a; }
+.tab-btn#btn-medir    { --tab-color:#7c3aed; }
+.tab-btn#btn-riego    { --tab-color:#0891b2; }
+.tab-btn#btn-meteo    { --tab-color:#ea580c; }
+.tab-btn#btn-consejos { --tab-color:#db2777; }
+.tab-btn.active { color:var(--tab-color); }
+.tab-btn.active::before {
+  content:''; position:absolute; top:0; left:15%; right:15%;
+  height:2.5px; background:var(--tab-color); border-radius:0 0 3px 3px;
+}
+.tab-btn.active::after {
+  content:''; position:absolute; top:6px; left:50%; transform:translateX(-50%);
+  width:36px; height:36px;
+  background:color-mix(in srgb,var(--tab-color) 12%,transparent);
+  border-radius:10px; z-index:-1;
+}
+
+/* ══ COMPONENTES COMUNES ══ */
+.section-title {
+  font-family:var(--font-display); font-size:18px; font-weight:800;
+  color:var(--white); margin-bottom:14px; display:flex; align-items:center; gap:8px;
+}
+.section-title .accent { color:#0369a1; }
+.card {
+  background:var(--bg2); border:1.5px solid var(--border); border-radius:14px;
+  padding:14px; margin-bottom:10px; box-shadow:0 1px 4px rgba(0,0,0,0.05);
+}
+.card-title {
+  font-family:var(--font-display); font-size:12px; font-weight:700;
+  color:var(--white); letter-spacing:1px; text-transform:uppercase;
+  margin-bottom:12px; display:flex; align-items:center; gap:8px;
+}
+.info-banner {
+  background:#e0f2fe; border:1px solid #7dd3fc; border-radius:10px;
+  padding:10px 12px; font-size:13px; color:#0c4a6e; line-height:1.5;
+  margin-bottom:10px; display:flex; gap:8px; align-items:flex-start;
+}
+.btn {
+  width:100%; padding:16px; border-radius:14px; border:none;
+  font-family:var(--font-display); font-size:15px; font-weight:700;
+  cursor:pointer; transition:all 0.15s; min-height:var(--touch-min);
+  user-select:none;
+}
+.btn:active { transform:scale(0.97); opacity:0.85; }
+.btn-primary { background:linear-gradient(135deg,#0369a1,#0284c7); color:white; }
+.btn-green   { background:linear-gradient(135deg,#15803d,#16a34a); color:white; }
+.btn-ghost   { background:transparent; color:var(--muted); border:1.5px solid var(--border); }
+.form-group  { margin-bottom:14px; }
+.form-label  { display:block; font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; font-weight:600; }
+.form-input, .form-select {
+  width:100%; background:var(--bg3); border:1.5px solid var(--border);
+  border-radius:10px; color:var(--white); font-family:var(--font-mono);
+  font-size:16px; padding:12px 14px; outline:none; transition:border-color 0.2s;
+  -webkit-appearance:none;
+}
+.form-input:focus,.form-select:focus { border-color:#0369a1; }
+.form-select option { background:var(--bg2); }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+/* ══ SISTEMA NFT VISUAL ══ */
+.nft-diagram {
+  background:var(--bg2); border:1.5px solid var(--border); border-radius:16px;
+  padding:16px; margin-bottom:12px; box-shadow:0 2px 12px rgba(0,0,0,0.05);
+}
+.nft-tubos {
+  display:flex; flex-direction:column; gap:8px; margin:12px 0;
+}
+.nft-tubo-row {
+  display:flex; align-items:center; gap:8px;
+}
+.nft-tubo-label {
+  font-size:10px; color:var(--muted); font-family:var(--font-mono);
+  width:18px; text-align:right; flex-shrink:0;
+}
+.nft-tubo-pipe {
+  flex:1; height:28px; background:linear-gradient(135deg,#e0f2fe,#bae6fd);
+  border:2px solid #7dd3fc; border-radius:8px;
+  display:flex; align-items:center; gap:4px; padding:0 6px;
+  position:relative; overflow:hidden;
+}
+/* Agua fluyendo */
+.nft-tubo-pipe::before {
+  content:''; position:absolute; bottom:0; left:0; right:0;
+  height:5px; background:linear-gradient(90deg,transparent,#38bdf8,transparent);
+  border-radius:0 0 6px 6px; opacity:0.5;
+  animation:waterFlow 2s linear infinite;
+}
+@keyframes waterFlow {
+  from{transform:translateX(-100%)} to{transform:translateX(100%)}
+}
+.nft-cesta-dot {
+  width:16px; height:16px; border-radius:50%; border:2px solid var(--border);
+  background:#fff; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  font-size:8px;
+}
+.nft-cesta-dot.plantula   { border-color:#3b82f6; background:#eff6ff; }
+.nft-cesta-dot.crecimiento{ border-color:#16a34a; background:#f0fdf4; }
+.nft-cesta-dot.madurez    { border-color:#d97706; background:#fffbeb; }
+.nft-cesta-dot.cosecha    { border-color:#dc2626; background:#fff5f5; }
+.nft-deposito {
+  background:#eff6ff; border:2px solid #7dd3fc; border-radius:12px;
+  padding:10px 14px; display:flex; align-items:center; gap:10px;
+  margin-top:8px;
+}
+.nft-bomba-arrow {
+  text-align:center; font-size:20px; color:#7dd3fc; margin:4px 0;
+  animation:bounce 1s ease-in-out infinite alternate;
+}
+@keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-4px)} }
+
+/* ══ ESTADÍSTICAS SISTEMA ══ */
+.stats-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px;
+}
+.stat-box {
+  background:var(--bg2); border:1.5px solid var(--border); border-radius:12px;
+  padding:10px 8px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.stat-val {
+  font-family:var(--font-display); font-size:22px; font-weight:800;
+  line-height:1; color:#0369a1;
+}
+.stat-label { font-size:9px; color:var(--muted); margin-top:3px; text-transform:uppercase; letter-spacing:0.5px; }
+
+/* ══ RESULTADO BOMBA ══ */
+.bomba-result {
+  background:#fff; border:2px solid #0369a1; border-radius:16px;
+  padding:16px; margin-bottom:10px; box-shadow:0 4px 16px rgba(3,105,161,0.1);
+}
+.bomba-val {
+  font-family:var(--font-display); font-size:32px; font-weight:900;
+  color:#0369a1; line-height:1;
+}
+.bomba-unit { font-size:14px; font-weight:600; color:var(--muted); }
+.bomba-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;
+}
+.bomba-item {
+  background:#f0f9ff; border-radius:10px; padding:10px;
+}
+.bomba-item-val {
+  font-family:var(--font-display); font-size:18px; font-weight:800; color:#0369a1;
+}
+.bomba-item-label { font-size:10px; color:var(--muted); margin-top:2px; }
+
+/* ══ PLANTAS ══ */
+.planta-card {
+  background:#fff; border:2px solid var(--border); border-radius:14px;
+  padding:14px; margin-bottom:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;
+  transition:all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+}
+.planta-card:active { transform:scale(0.97); }
+.planta-card.selected { border-color:#16a34a; background:#f0fdf4; }
+.planta-header { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.planta-emoji { font-size:32px; }
+.planta-info { flex:1; }
+.planta-nombre { font-family:var(--font-display); font-size:15px; font-weight:800; color:var(--white); }
+.planta-tipo   { font-size:11px; color:var(--muted); margin-top:2px; }
+.planta-badges { display:flex; flex-wrap:wrap; gap:4px; }
+.badge-param {
+  font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px;
+  display:inline-flex; align-items:center; gap:3px;
+}
+.badge-ec   { background:#e0f2fe; color:#0369a1; }
+.badge-ph   { background:#f0fdf4; color:#15803d; }
+.badge-temp { background:#fffbeb; color:#b45309; }
+.badge-dias { background:#f5f3ff; color:#6d28d9; }
+
+/* ══ MODAL ══ */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.5);
+  z-index:500; display:none; align-items:flex-end; backdrop-filter:blur(4px);
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--bg2); border:1.5px solid var(--border); border-radius:20px 20px 0 0;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.1); width:100%;
+  max-width:430px; margin:0 auto;
+  padding:20px 16px calc(24px + env(safe-area-inset-bottom,34px));
+  transform:translateY(100%); transition:transform 0.32s cubic-bezier(0.32,0.72,0,1);
+  max-height:85vh; overflow-y:auto;
+}
+.modal-overlay.open .modal { transform:translateY(0); }
+.modal-handle { width:36px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 16px; }
+.modal-title  { font-family:var(--font-display); font-size:16px; font-weight:800; color:var(--white); margin-bottom:16px; }
+
+/* ══ RESPONSIVE ══ */
+@media(min-width:430px){
+  .app { box-shadow:0 0 40px rgba(0,0,0,0.12); }
+  body { background:#e0f2fe; }
+}
+@media(min-width:768px){
+  body { background:#bae6fd; }
+  .app { border-radius:24px; overflow:hidden; margin-top:20px; height:calc(100vh - 40px); }
+}
+@media(hover:hover){
+  .planta-card:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.08); }
+  .tab-btn:hover { color:var(--tab-color,#0369a1); }
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div class="splash" id="splashScreen">
+  <div class="splash-icon">🌊</div>
+  <div class="splash-title"><span class="t-nft">NFT</span><span class="t-caru">CARU</span></div>
+  <div class="splash-sub">Sistema NFT Hidropónico</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- PIN -->
+<div class="pin-screen" id="pinScreen">
+  <div class="pin-logo"><span class="t-nft">NFT</span><span class="t-caru">CARU</span></div>
+  <div class="pin-sub">Sistema NFT Hidropónico</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-err" id="pinErr"></div>
+  <div class="pin-pad" id="pinPad">
+    <div class="pin-key" data-digit="1">1</div>
+    <div class="pin-key" data-digit="2">2</div>
+    <div class="pin-key" data-digit="3">3</div>
+    <div class="pin-key" data-digit="4">4</div>
+    <div class="pin-key" data-digit="5">5</div>
+    <div class="pin-key" data-digit="6">6</div>
+    <div class="pin-key" data-digit="7">7</div>
+    <div class="pin-key" data-digit="8">8</div>
+    <div class="pin-key" data-digit="9">9</div>
+    <div class="pin-key empty"></div>
+    <div class="pin-key" data-digit="0">0</div>
+    <div class="pin-key del" id="pinDelBtn">⌫</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo"><span class="t-nft">NFT</span><span class="t-caru">CARU</span></div>
+    <div class="header-right">
+      <div class="status-dot"></div>
+      <span id="headerTime">--:--</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- TAB: SISTEMA -->
+    <div class="tab-panel active" id="tab-sistema">
+      <div class="section-title">⚙️ <span class="accent">Sistema</span> NFT</div>
+
+      <!-- Stats rápidas -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-box">
+          <div class="stat-val" id="statTubos">0</div>
+          <div class="stat-label">Tubos</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statPlantas" style="color:var(--green)">0</div>
+          <div class="stat-label">Plantas</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statVol" style="color:#0891b2">0L</div>
+          <div class="stat-label">Depósito</div>
+        </div>
+      </div>
+
+      <!-- Diagrama NFT -->
+      <div class="nft-diagram">
+        <div class="card-title">📐 Tu sistema</div>
+        <div class="nft-bomba-arrow">↑</div>
+        <div class="nft-tubos" id="nftDiagrama">
+          <div class="info-banner" style="margin:0">
+            <span>💡</span>
+            <span>Configura tu sistema en el botón de abajo para ver el diagrama visual</span>
+          </div>
+        </div>
+        <div class="nft-bomba-arrow">↓</div>
+        <div class="nft-deposito">
+          <span style="font-size:24px">🪣</span>
+          <div>
+            <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:#0369a1">Depósito recirculación</div>
+            <div style="font-size:11px;color:var(--muted)" id="depositoInfoSistema">Bomba continua 24h · Sin temporizador</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resultado bomba -->
+      <div class="bomba-result" id="bombaResult" style="display:none">
+        <div class="card-title">⚡ Bomba recomendada</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+          <div class="bomba-val" id="bombaLH">0</div>
+          <div class="bomba-unit">L/h mínimo</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px" id="bombaWatts"></div>
+        <div class="bomba-grid">
+          <div class="bomba-item">
+            <div class="bomba-item-val" id="bombaLMin">—</div>
+            <div class="bomba-item-label">L/min total</div>
+          </div>
+          <div class="bomba-item">
+            <div class="bomba-item-val" id="bombaHead">—</div>
+            <div class="bomba-item-label">Head height</div>
+          </div>
+          <div class="bomba-item">
+            <div class="bomba-item-val" id="bombaPendiente">—</div>
+            <div class="bomba-item-label">Pendiente rec.</div>
+          </div>
+          <div class="bomba-item">
+            <div class="bomba-item-val" id="bombaVolMin">—</div>
+            <div class="bomba-item-label">Depósito mín.</div>
+          </div>
+        </div>
+        <div id="bombaAlerta" style="display:none;margin-top:10px;padding:8px 10px;background:#fff5f5;border:1px solid #fca5a5;border-radius:8px;font-size:12px;color:#7f1d1d"></div>
+      </div>
+
+      <!-- Botón configurar -->
+      <button class="btn btn-primary" onclick="abrirConfigSistema()">
+        ⚙️ Configurar mi sistema NFT
+      </button>
+    </div>
+
+    <!-- TAB: PLANTAS -->
+    <div class="tab-panel" id="tab-plantas">
+      <div class="section-title">🌿 <span class="accent">Cultivos</span></div>
+
+      <!-- Sub-tabs categorías -->
+      <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;scrollbar-width:none">
+        <button class="btn" style="flex-shrink:0;width:auto;padding:7px 12px;font-size:11px;border-radius:20px;background:#e0f2fe;color:#0369a1;border:1.5px solid #7dd3fc" id="cat-todas" onclick="filtrarCultivos('todas')">🌿 Todas</button>
+        <button class="btn" style="flex-shrink:0;width:auto;padding:7px 12px;font-size:11px;border-radius:20px;background:var(--bg2);color:var(--muted);border:1.5px solid var(--border)" id="cat-lechugas" onclick="filtrarCultivos('lechugas')">🥬 Lechugas</button>
+        <button class="btn" style="flex-shrink:0;width:auto;padding:7px 12px;font-size:11px;border-radius:20px;background:var(--bg2);color:var(--muted);border:1.5px solid var(--border)" id="cat-hierbas" onclick="filtrarCultivos('hierbas')">🌿 Hierbas</button>
+        <button class="btn" style="flex-shrink:0;width:auto;padding:7px 12px;font-size:11px;border-radius:20px;background:var(--bg2);color:var(--muted);border:1.5px solid var(--border)" id="cat-hojas" onclick="filtrarCultivos('hojas')">🌱 Hojas</button>
+        <button class="btn" style="flex-shrink:0;width:auto;padding:7px 12px;font-size:11px;border-radius:20px;background:var(--bg2);color:var(--muted);border:1.5px solid var(--border)" id="cat-frutos" onclick="filtrarCultivos('frutos')">🍓 Frutos</button>
+        <button class="btn" style="flex-shrink:0;width:auto;padding:7px 12px;font-size:11px;border-radius:20px;background:var(--bg2);color:var(--muted);border:1.5px solid var(--border)" id="cat-asiaticas" onclick="filtrarCultivos('asiaticas')">🥢 Asiáticas</button>
+      </div>
+
+      <div id="cultivosLista"></div>
+    </div>
+
+    <!-- TAB: MEDIR -->
+    <div class="tab-panel" id="tab-medir">
+      <div class="section-title">📊 <span class="accent">Mediciones</span></div>
+      <div class="info-banner"><span>💧</span><span>En NFT la bomba es continua — mide EC y pH cada 1-2 días. Pequeñas variaciones son normales por evaporación.</span></div>
+
+      <!-- EC -->
+      <div class="card" id="cardEC_nft">
+        <div class="card-title">⚡ EC</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="number" id="nftEC" placeholder="1400" inputmode="numeric"
+            style="flex:1;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;
+                   color:var(--white);font-size:22px;font-weight:600;padding:10px 14px;outline:none;
+                   font-family:var(--font-mono);-webkit-appearance:none" oninput="evalNFT()">
+          <span style="color:var(--muted);font-size:12px">µS/cm</span>
+        </div>
+        <div id="statusEC_nft" style="margin-top:8px;font-size:13px;font-weight:600;display:none"></div>
+      </div>
+
+      <!-- pH -->
+      <div class="card" id="cardPH_nft">
+        <div class="card-title">🧪 pH</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="number" id="nftPH" placeholder="6.0" inputmode="decimal" step="0.1"
+            style="flex:1;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;
+                   color:var(--white);font-size:22px;font-weight:600;padding:10px 14px;outline:none;
+                   font-family:var(--font-mono);-webkit-appearance:none" oninput="evalNFT()">
+          <span style="color:var(--muted);font-size:12px">pH</span>
+        </div>
+        <div id="statusPH_nft" style="margin-top:8px;font-size:13px;font-weight:600;display:none"></div>
+      </div>
+
+      <!-- Temperatura agua -->
+      <div class="card">
+        <div class="card-title">🌡️ Temperatura agua</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="number" id="nftTemp" placeholder="20" inputmode="decimal" step="0.1"
+            style="flex:1;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;
+                   color:var(--white);font-size:22px;font-weight:600;padding:10px 14px;outline:none;
+                   font-family:var(--font-mono);-webkit-appearance:none" oninput="evalNFT()">
+          <span style="color:var(--muted);font-size:12px">°C</span>
+        </div>
+        <div id="statusTemp_nft" style="margin-top:8px;font-size:13px;font-weight:600;display:none"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📝 Notas</div>
+        <textarea id="nftNotas" class="form-input" style="height:70px;resize:none;font-size:14px" placeholder="Observaciones, incidencias..."></textarea>
+      </div>
+
+      <button class="btn btn-primary" onclick="guardarMedicionNFT()">💾 Guardar medición</button>
+    </div>
+
+    <!-- TAB: RIEGO NFT -->
+    <div class="tab-panel" id="tab-riego">
+      <div class="section-title">💧 <span class="accent">Riego</span> NFT</div>
+      <div class="info-banner">
+        <span>ℹ️</span>
+        <span>El sistema NFT usa <strong>bomba continua 24h</strong>. No hay ciclos ON/OFF. El caudal y la pendiente determinan la salud del cultivo.</span>
+      </div>
+
+      <!-- Estado actual del sistema -->
+      <div class="card">
+        <div class="card-title">⚡ Estado del caudal</div>
+        <div id="caudalEstado">
+          <div style="font-size:13px;color:var(--muted)">Configura tu sistema para ver el análisis de caudal</div>
+        </div>
+      </div>
+
+      <!-- Alertas NFT específicas -->
+      <div class="card">
+        <div class="card-title">⚠️ Alertas NFT</div>
+        <div id="nftAlertas" style="font-size:13px;color:var(--muted)">Sin alertas activas</div>
+      </div>
+
+      <!-- Info meteorológica -->
+      <div class="card" id="meteoRiegoCard">
+        <div class="card-title">🌡️ Condiciones actuales</div>
+        <div id="meteoRiegoInfo" style="font-size:13px;color:var(--muted)">Cargando...</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="cargarMeteoNFT()">🔄 Actualizar condiciones</button>
+    </div>
+
+    <!-- TAB: METEO -->
+    <div class="tab-panel" id="tab-meteo">
+      <div class="section-title">🌤️ <span class="accent">Meteorología</span></div>
+      <div id="meteoNFTContent">
+        <div class="info-banner"><span>⏳</span><span>Cargando datos meteorológicos...</span></div>
+      </div>
+    </div>
+
+    <!-- TAB: CONSEJOS NFT -->
+    <div class="tab-panel" id="tab-consejos">
+      <div class="section-title">💡 <span class="accent">Consejos</span> NFT</div>
+      <div id="consejosNFTContent"></div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="btn-sistema" onclick="goTab('sistema')" aria-label="Sistema">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+      Sistema
+    </button>
+    <button class="tab-btn" id="btn-plantas" onclick="goTab('plantas')" aria-label="Plantas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22V12M12 12C12 7 17 3 17 3S22 7 17 12M12 12C12 7 7 3 7 3S2 7 7 12"/>
+      </svg>
+      Plantas
+    </button>
+    <button class="tab-btn" id="btn-medir" onclick="goTab('medir')" aria-label="Medir">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Medir
+    </button>
+    <button class="tab-btn" id="btn-riego" onclick="goTab('riego')" aria-label="Riego">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2C6 2 2 8 2 13a10 10 0 0020 0c0-5-4-11-10-11z"/>
+      </svg>
+      Riego
+    </button>
+    <button class="tab-btn" id="btn-meteo" onclick="goTab('meteo')" aria-label="Meteo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/>
+      </svg>
+      Meteo
+    </button>
+    <button class="tab-btn" id="btn-consejos" onclick="goTab('consejos')" aria-label="Consejos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+      </svg>
+      Consejos
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<!-- MODAL CONFIGURAR SISTEMA -->
+<div class="modal-overlay" id="modalSistema" onclick="cerrarModalSistema(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙️ Configurar sistema NFT</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nº de tubos</label>
+        <input type="number" class="form-input" id="cfgTubos" value="4" min="1" max="20" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Longitud tubo (cm)</label>
+        <input type="number" class="form-input" id="cfgLongitud" value="200" min="30" max="500" inputmode="numeric">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Diámetro tubo PVC</label>
+      <select class="form-select" id="cfgDiametro">
+        <option value="50">50 mm (2") — Hierbas y plantas pequeñas</option>
+        <option value="75" selected>75 mm (3") — Lechugas y hojas</option>
+        <option value="110">110 mm (4") — Cultivos medianos</option>
+        <option value="160">160 mm (6") — Cultivos grandes</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Cestas por tubo</label>
+        <input type="number" class="form-input" id="cfgCestas" value="8" min="1" max="30" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Diámetro cesta (mm)</label>
+        <select class="form-select" id="cfgDiametroCesta">
+          <option value="50">50 mm</option>
+          <option value="75" selected>75 mm</option>
+          <option value="90">90 mm</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Volumen depósito (L)</label>
+        <input type="number" class="form-input" id="cfgVolumen" value="50" min="10" max="500" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Altura bomba (cm)</label>
+        <input type="number" class="form-input" id="cfgAltura" value="150" min="10" max="500" inputmode="numeric">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Equipamiento</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg3);border-radius:10px;cursor:pointer" onclick="toggleCheck('chkDifusor')">
+          <input type="checkbox" id="chkDifusor" checked style="width:18px;height:18px;accent-color:#0369a1">
+          <span style="font-size:13px">💨 Difusor aire</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg3);border-radius:10px;cursor:pointer" onclick="toggleCheck('chkCalentador')">
+          <input type="checkbox" id="chkCalentador" checked style="width:18px;height:18px;accent-color:#0369a1">
+          <span style="font-size:13px">🌡️ Calentador</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="guardarConfigSistema()">✅ Calcular sistema</button>
+    <button class="btn btn-ghost" onclick="cerrarModalSistema()" style="margin-top:8px">Cancelar</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATOS CULTIVOS NFT — 35 variedades
+// ══════════════════════════════════════════════════
+const CULTIVOS_NFT = [
+  // LECHUGAS
+  { id:'romana',      nombre:'Romana',           categoria:'lechugas', emoji:'🥬', dias:55, ec:[1200,1600], ph:[6.0,7.0], temp:[18,24], espaciado:25, diam_cesta:75,  altura_max:35, nota:'La más productiva en NFT. Raíces compactas ideales.' },
+  { id:'trocadero',   nombre:'Trocadero',        categoria:'lechugas', emoji:'🥬', dias:50, ec:[1200,1600], ph:[6.0,7.0], temp:[15,22], espaciado:20, diam_cesta:75,  altura_max:25, nota:'Muy rápida. Perfecta para tubos de 75mm.' },
+  { id:'maravilla',   nombre:'Maravilla',        categoria:'lechugas', emoji:'🥬', dias:52, ec:[1000,1400], ph:[6.0,7.0], temp:[15,22], espaciado:22, diam_cesta:75,  altura_max:30, nota:'Resistente al calor. Buena para verano.' },
+  { id:'lolo_rosso',  nombre:'Lolo Rosso',       categoria:'lechugas', emoji:'🥬', dias:48, ec:[1200,1600], ph:[6.0,7.0], temp:[15,22], espaciado:20, diam_cesta:75,  altura_max:25, nota:'Color rojo decorativo. Muy visual.' },
+  { id:'batavia',     nombre:'Batavia',          categoria:'lechugas', emoji:'🥬', dias:55, ec:[1200,1800], ph:[6.0,7.0], temp:[15,24], espaciado:25, diam_cesta:75,  altura_max:30, nota:'Crujiente y resistente. Tolera más calor.' },
+  { id:'iceberg',     nombre:'Iceberg',          categoria:'lechugas', emoji:'🥬', dias:65, ec:[1200,1800], ph:[6.0,7.0], temp:[15,22], espaciado:28, diam_cesta:90,  altura_max:30, nota:'Requiere más espacio. Diam. cesta 90mm recomendado.' },
+  { id:'mantecosa',   nombre:'Mantecosa',        categoria:'lechugas', emoji:'🥬', dias:45, ec:[800,1200],  ph:[6.0,7.0], temp:[12,20], espaciado:20, diam_cesta:75,  altura_max:25, nota:'La más tierna. EC baja. Perfecta para invierno.' },
+  // HIERBAS
+  { id:'albahaca',    nombre:'Albahaca',         categoria:'hierbas',  emoji:'🌿', dias:60, ec:[700,1400],  ph:[5.5,6.5], temp:[20,30], espaciado:20, diam_cesta:50,  altura_max:60, nota:'Necesita calor. Repele plagas naturalmente.' },
+  { id:'menta',       nombre:'Menta',            categoria:'hierbas',  emoji:'🌿', dias:45, ec:[1400,1600], ph:[6.5,7.0], temp:[15,25], espaciado:20, diam_cesta:50,  altura_max:40, nota:'Muy vigorosa. Cuidado con la invasión.' },
+  { id:'perejil',     nombre:'Perejil',          categoria:'hierbas',  emoji:'🌿', dias:70, ec:[1000,1400], ph:[6.0,7.0], temp:[15,25], espaciado:15, diam_cesta:50,  altura_max:35, nota:'Lento al inicio. Muy productivo una vez establecido.' },
+  { id:'cilantro',    nombre:'Cilantro',         categoria:'hierbas',  emoji:'🌿', dias:35, ec:[1000,1400], ph:[6.0,7.0], temp:[17,27], espaciado:15, diam_cesta:50,  altura_max:40, nota:'Ciclo muy corto. Tendencia a espigarse con calor.' },
+  { id:'oregano',     nombre:'Orégano',          categoria:'hierbas',  emoji:'🌿', dias:90, ec:[1400,1800], ph:[6.0,7.5], temp:[18,28], espaciado:18, diam_cesta:50,  altura_max:50, nota:'Perenne. Una vez establecido, cosecha continua.' },
+  { id:'tomillo',     nombre:'Tomillo',          categoria:'hierbas',  emoji:'🌿', dias:90, ec:[1400,1800], ph:[6.5,7.5], temp:[15,25], espaciado:18, diam_cesta:50,  altura_max:30, nota:'Muy aromático. Tolera cierta sequedad en raíces.' },
+  { id:'romero',      nombre:'Romero',           categoria:'hierbas',  emoji:'🌿', dias:120,ec:[800,1200],  ph:[5.5,6.5], temp:[15,28], espaciado:25, diam_cesta:75,  altura_max:80, nota:'Planta alta. EC baja. Buen espaciado recomendado.' },
+  { id:'cebollino',   nombre:'Cebollino',        categoria:'hierbas',  emoji:'🌿', dias:40, ec:[1400,1800], ph:[6.0,7.0], temp:[15,25], espaciado:10, diam_cesta:50,  altura_max:40, nota:'Muy productivo. Espaciado mínimo de 10cm.' },
+  { id:'estevia',     nombre:'Estevia',          categoria:'hierbas',  emoji:'🌿', dias:60, ec:[800,1200],  ph:[6.0,7.5], temp:[20,30], espaciado:20, diam_cesta:75,  altura_max:60, nota:'Edulcorante natural. EC baja. Excelente en NFT.' },
+  // HOJAS VERDES
+  { id:'espinaca',    nombre:'Espinaca',         categoria:'hojas',    emoji:'🌱', dias:45, ec:[1400,1800], ph:[6.0,7.5], temp:[15,24], espaciado:15, diam_cesta:75,  altura_max:30, nota:'Muy nutritiva. No le gusta el calor excesivo.' },
+  { id:'rucula',      nombre:'Rúcula',           categoria:'hojas',    emoji:'🌱', dias:35, ec:[1400,1800], ph:[6.0,7.0], temp:[15,22], espaciado:12, diam_cesta:50,  altura_max:25, nota:'Ciclo muy corto. Sabor picante intenso.' },
+  { id:'acelga',      nombre:'Acelga',           categoria:'hojas',    emoji:'🌱', dias:55, ec:[1600,2300], ph:[6.0,7.5], temp:[15,25], espaciado:25, diam_cesta:90,  altura_max:50, nota:'EC más alta. Raíces grandes — tubo 110mm recomendado.' },
+  { id:'kale',        nombre:'Kale',             categoria:'hojas',    emoji:'🌱', dias:60, ec:[1400,2100], ph:[5.5,6.5], temp:[15,24], espaciado:25, diam_cesta:90,  altura_max:60, nota:'Superfood. Raíces potentes. Tubo grande recomendado.' },
+  { id:'canónigos',   nombre:'Canónigos',        categoria:'hojas',    emoji:'🌱', dias:40, ec:[800,1400],  ph:[6.0,7.0], temp:[12,18], espaciado:10, diam_cesta:50,  altura_max:15, nota:'Temperatura fresca. Ideal para invierno en exterior.' },
+  { id:'bok_choy',    nombre:'Bok Choy',         categoria:'hojas',    emoji:'🌱', dias:45, ec:[1400,2100], ph:[6.0,7.5], temp:[15,25], espaciado:20, diam_cesta:75,  altura_max:35, nota:'Muy rápido. Compatible con lechugas en mismo depósito.' },
+  // ASIÁTICAS
+  { id:'mizuna',      nombre:'Mizuna',           categoria:'asiaticas',emoji:'🥢', dias:40, ec:[1200,1800], ph:[5.5,6.5], temp:[15,25], espaciado:15, diam_cesta:50,  altura_max:30, nota:'Muy fácil en NFT. Tolera calor mejor que lechugas.' },
+  { id:'komatsuna',   nombre:'Komatsuna',        categoria:'asiaticas',emoji:'🥢', dias:35, ec:[1200,1600], ph:[6.0,7.0], temp:[15,25], espaciado:15, diam_cesta:50,  altura_max:35, nota:'La más rápida. 35 días. Sabor suave.' },
+  { id:'pak_choi',    nombre:'Pak Choi',         categoria:'asiaticas',emoji:'🥢', dias:40, ec:[1400,2100], ph:[6.0,7.5], temp:[15,25], espaciado:20, diam_cesta:75,  altura_max:35, nota:'Muy popular. Hojas crujientes y sabrosas.' },
+  { id:'tatsoi',      nombre:'Tatsoi',           categoria:'asiaticas',emoji:'🥢', dias:45, ec:[1200,1800], ph:[6.0,7.0], temp:[10,22], espaciado:15, diam_cesta:50,  altura_max:20, nota:'Resiste hasta 0°C. Ideal para invierno.' },
+  { id:'shiso',       nombre:'Shiso / Perilla',  categoria:'asiaticas',emoji:'🥢', dias:60, ec:[800,1200],  ph:[5.5,6.5], temp:[20,30], espaciado:20, diam_cesta:75,  altura_max:60, nota:'Hierba japonesa. Necesita calor. Muy aromática.' },
+  // FRUTOS (compatibles con NFT con soporte)
+  { id:'fresa',       nombre:'Fresa',            categoria:'frutos',   emoji:'🍓', dias:90, ec:[1200,1800], ph:[5.5,6.5], temp:[15,25], espaciado:25, diam_cesta:90,  altura_max:25, nota:'Muy popular en NFT. Frutos cuelgan fuera del tubo.' },
+  { id:'tomate_cherry',nombre:'Tomate Cherry',   categoria:'frutos',   emoji:'🍅', dias:90, ec:[2000,3500], ph:[5.5,6.5], temp:[20,28], espaciado:35, diam_cesta:90,  altura_max:150,nota:'Necesita tubo 110mm y soporte. EC alta. Depósito separado.' },
+  { id:'pepino',      nombre:'Pepino mini',      categoria:'frutos',   emoji:'🥒', dias:65, ec:[1700,2500], ph:[5.5,6.5], temp:[22,28], espaciado:40, diam_cesta:90,  altura_max:200,nota:'Necesita soporte vertical. EC alta.' },
+  { id:'pimiento',    nombre:'Pimiento',         categoria:'frutos',   emoji:'🫑', dias:90, ec:[2000,3000], ph:[5.5,6.5], temp:[20,28], espaciado:35, diam_cesta:90,  altura_max:80, nota:'EC alta. No compatible con lechugas en mismo depósito.' },
+];
+
+// ══════════════════════════════════════════════════
+// CONSTANTES Y ESTADO
+// ══════════════════════════════════════════════════
+const PIN = '2506';
+const STORAGE_KEY = 'nftcaru_v1';
+
+let state = loadState();
+let currentTab = 'sistema';
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { config: null, mediciones: [], cultivosActivos: [] };
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════
+// PIN
+// ══════════════════════════════════════════════════
+let pinEntry = '';
+
+function pinPress(d) {
+  if (pinEntry.length >= 4) return;
+  pinEntry += d;
+  updatePinDots();
+  if (pinEntry.length === 4) setTimeout(checkPin, 180);
+}
+function pinDel() {
+  pinEntry = pinEntry.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pinErr').textContent = '';
+}
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('d' + i);
+    d.className = 'pin-dot' + (i < pinEntry.length ? ' on' : '');
+  }
+}
+function checkPin() {
+  if (pinEntry === PIN) {
+    document.getElementById('pinScreen').style.display = 'none';
+    try { localStorage.setItem('nftcaru_auth', Date.now().toString()); } catch(e) {}
+    initApp();
+  } else {
+    for (let i = 0; i < 4; i++) document.getElementById('d' + i).className = 'pin-dot err';
+    document.getElementById('pinErr').textContent = 'PIN incorrecto';
+    setTimeout(() => { pinEntry = ''; updatePinDots(); document.getElementById('pinErr').textContent = ''; }, 1000);
+  }
+}
+
+// ══════════════════════════════════════════════════
+// NAVEGACIÓN
+// ══════════════════════════════════════════════════
+function goTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('btn-' + tab).classList.add('active');
+  currentTab = tab;
+  if (tab === 'plantas') renderCultivos();
+  if (tab === 'riego')   cargarMeteoNFT();
+  if (tab === 'meteo')   cargarMeteoCompleto();
+  if (tab === 'consejos') renderConsejos();
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+function initApp() {
+  updateClock();
+  setInterval(updateClock, 30000);
+  if (state.config) renderSistema();
+  renderCultivos();
+  renderConsejosNFT();
+}
+function updateClock() {
+  document.getElementById('headerTime').textContent =
+    new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+}
+
+// ══════════════════════════════════════════════════
+// CONFIGURACIÓN SISTEMA NFT
+// ══════════════════════════════════════════════════
+function abrirConfigSistema() {
+  document.getElementById('modalSistema').classList.add('open');
+}
+function cerrarModalSistema(e) {
+  if (!e || e.target === document.getElementById('modalSistema')) {
+    document.getElementById('modalSistema').classList.remove('open');
+  }
+}
+function toggleCheck(id) {
+  const el = document.getElementById(id);
+  el.checked = !el.checked;
+}
+
+function guardarConfigSistema() {
+  const tubos    = parseInt(document.getElementById('cfgTubos').value) || 4;
+  const longitud = parseInt(document.getElementById('cfgLongitud').value) || 200;
+  const diametro = parseInt(document.getElementById('cfgDiametro').value) || 75;
+  const cestas   = parseInt(document.getElementById('cfgCestas').value) || 8;
+  const dCesta   = parseInt(document.getElementById('cfgDiametroCesta').value) || 75;
+  const volumen  = parseInt(document.getElementById('cfgVolumen').value) || 50;
+  const altura   = parseInt(document.getElementById('cfgAltura').value) || 150;
+  const difusor  = document.getElementById('chkDifusor').checked;
+  const calentador = document.getElementById('chkCalentador').checked;
+
+  // ── CÁLCULOS NFT ─────────────────────────────────────────────────────────
+  // Caudal por tubo: 1-2 L/min (usamos 1.5 L/min como estándar)
+  const caudalPorTubo = 1.5; // L/min
+  const caudalTotal   = caudalPorTubo * tubos; // L/min
+  const caudalLH      = Math.ceil(caudalTotal * 60 * 1.2); // L/h con 20% fricción
+
+  // Head: altura en metros
+  const headMetros = altura / 100;
+  // Potencia bomba estimada (muy simplificada)
+  const potenciaW = Math.ceil((caudalLH / 3600 * 1000 * 9.81 * headMetros) / 0.5);
+
+  // Pendiente recomendada: 1:30 a 1:40 (2.5-3.3%)
+  const pendienteCm = Math.round(longitud / 30); // cm de caída para 1:30
+
+  // Volumen mínimo depósito = plantas × 2.5L + 20% seguridad
+  const totalPlantas = tubos * cestas;
+  const volMinimo = Math.ceil(totalPlantas * 2.5 * 1.2);
+
+  // Espaciado real entre cestas
+  const espaciadoReal = Math.floor((longitud - dCesta) / Math.max(1, cestas - 1));
+
+  // Alertas
+  const alertas = [];
+  if (longitud > 300) alertas.push('⚠️ Tubos de más de 3m — riesgo de déficit de nutrientes en el extremo final. Considera acortar a 2.5-3m máximo.');
+  if (volumen < volMinimo) alertas.push('⚠️ Depósito demasiado pequeño. Mínimo recomendado: ' + volMinimo + 'L para ' + totalPlantas + ' plantas.');
+  if (espaciadoReal < 10) alertas.push('⚠️ Espaciado entre cestas muy reducido (' + espaciadoReal + 'cm). Mínimo recomendado 15cm para la mayoría de cultivos.');
+
+  state.config = { tubos, longitud, diametro, cestas, dCesta, volumen, altura,
+    difusor, calentador, caudalLH, caudalTotal, headMetros, potenciaW,
+    pendienteCm, totalPlantas, volMinimo, espaciadoReal, alertas };
+  saveState();
+
+  cerrarModalSistema();
+  renderSistema();
+  showToast('✅ Sistema NFT calculado');
+}
+
+function renderSistema() {
+  const cfg = state.config;
+  if (!cfg) return;
+
+  // Stats
+  document.getElementById('statTubos').textContent   = cfg.tubos;
+  document.getElementById('statPlantas').textContent = cfg.totalPlantas;
+  document.getElementById('statVol').textContent     = cfg.volumen + 'L';
+
+  // Diagrama tubos
+  const diag = document.getElementById('nftDiagrama');
+  diag.innerHTML = '';
+  for (let t = 0; t < Math.min(cfg.tubos, 6); t++) {
+    const row = document.createElement('div');
+    row.className = 'nft-tubo-row';
+    row.innerHTML = '<div class="nft-tubo-label">' + (t+1) + '</div>';
+    const pipe = document.createElement('div');
+    pipe.className = 'nft-tubo-pipe';
+    const mostrar = Math.min(cfg.cestas, 8);
+    for (let c = 0; c < mostrar; c++) {
+      const dot = document.createElement('div');
+      dot.className = 'nft-cesta-dot crecimiento';
+      dot.textContent = '🌿';
+      pipe.appendChild(dot);
+    }
+    if (cfg.cestas > 8) {
+      const mas = document.createElement('span');
+      mas.style.cssText = 'font-size:9px;color:#6b7280;margin-left:4px';
+      mas.textContent = '+' + (cfg.cestas - 8);
+      pipe.appendChild(mas);
+    }
+    row.appendChild(pipe);
+    diag.appendChild(row);
+  }
+  if (cfg.tubos > 6) {
+    const mas = document.createElement('div');
+    mas.style.cssText = 'text-align:center;font-size:11px;color:#6b7280;padding:4px';
+    mas.textContent = '+ ' + (cfg.tubos - 6) + ' tubos más';
+    diag.appendChild(mas);
+  }
+
+  // Info depósito
+  document.getElementById('depositoInfoSistema').textContent =
+    cfg.volumen + 'L · Bomba continua · ' +
+    (cfg.difusor ? 'Difusor ✓' : 'Sin difusor') + ' · ' +
+    (cfg.calentador ? 'Calentador ✓' : 'Sin calentador');
+
+  // Resultado bomba
+  const br = document.getElementById('bombaResult');
+  br.style.display = 'block';
+  document.getElementById('bombaLH').textContent = cfg.caudalLH;
+  document.getElementById('bombaWatts').textContent = 'Potencia estimada: ~' + cfg.potenciaW + 'W · Con 20% margen por fricción';
+  document.getElementById('bombaLMin').textContent = Math.round(cfg.caudalTotal * 10) / 10;
+  document.getElementById('bombaHead').textContent = cfg.headMetros + 'm';
+  document.getElementById('bombaPendiente').textContent = cfg.pendienteCm + 'cm';
+  document.getElementById('bombaVolMin').textContent = cfg.volMinimo + 'L';
+
+  // Alertas
+  const alertEl = document.getElementById('bombaAlerta');
+  if (cfg.alertas.length > 0) {
+    alertEl.style.display = 'block';
+    alertEl.innerHTML = cfg.alertas.join('<br>');
+  } else {
+    alertEl.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════════
+// CULTIVOS
+// ══════════════════════════════════════════════════
+let categoriaActiva = 'todas';
+
+function filtrarCultivos(cat) {
+  categoriaActiva = cat;
+  document.querySelectorAll('[id^="cat-"]').forEach(b => {
+    b.style.background = 'var(--bg2)';
+    b.style.color = 'var(--muted)';
+    b.style.borderColor = 'var(--border)';
+  });
+  const active = document.getElementById('cat-' + cat);
+  if (active) {
+    active.style.background = '#e0f2fe';
+    active.style.color = '#0369a1';
+    active.style.borderColor = '#7dd3fc';
+  }
+  renderCultivos();
+}
+
+function renderCultivos() {
+  const lista = document.getElementById('cultivosLista');
+  const filtrados = categoriaActiva === 'todas'
+    ? CULTIVOS_NFT
+    : CULTIVOS_NFT.filter(c => c.categoria === categoriaActiva);
+
+  lista.innerHTML = filtrados.map(c => `
+    <div class="planta-card" onclick="verDetalleCultivo('${c.id}')">
+      <div class="planta-header">
+        <div class="planta-emoji">${c.emoji}</div>
+        <div class="planta-info">
+          <div class="planta-nombre">${c.nombre}</div>
+          <div class="planta-tipo">${nombreCategoria(c.categoria)} · ${c.dias} días a cosecha</div>
+        </div>
+        <div style="font-size:12px;color:#6b7280">ø${c.diam_cesta}mm</div>
+      </div>
+      <div class="planta-badges">
+        <span class="badge-param badge-ec">⚡ ${c.ec[0]}-${c.ec[1]} µS</span>
+        <span class="badge-param badge-ph">🧪 pH ${c.ph[0]}-${c.ph[1]}</span>
+        <span class="badge-param badge-temp">🌡️ ${c.temp[0]}-${c.temp[1]}°C</span>
+        <span class="badge-param badge-dias">📏 ${c.espaciado}cm</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function nombreCategoria(cat) {
+  const map = { lechugas:'Lechuga', hierbas:'Hierba aromática', hojas:'Hoja verde', asiaticas:'Asiática', frutos:'Fruto' };
+  return map[cat] || cat;
+}
+
+function verDetalleCultivo(id) {
+  const c = CULTIVOS_NFT.find(x => x.id === id);
+  if (!c) return;
+
+  // Calcular compatibilidad con el sistema configurado
+  let compatMsg = '';
+  if (state.config) {
+    const cfg = state.config;
+    if (c.diam_cesta > cfg.dCesta) {
+      compatMsg = '⚠️ La cesta recomendada (' + c.diam_cesta + 'mm) es mayor que la configurada (' + cfg.dCesta + 'mm).';
+    } else if (c.altura_max > 50 && cfg.diametro < 110) {
+      compatMsg = '⚠️ Esta planta puede crecer hasta ' + c.altura_max + 'cm. Considera tubos de 110mm.';
+    } else {
+      compatMsg = '✅ Compatible con tu sistema actual.';
+    }
+  }
+
+  showToast(c.emoji + ' ' + c.nombre + ' — ' + c.nota);
+}
+
+// ══════════════════════════════════════════════════
+// MEDICIONES NFT
+// ══════════════════════════════════════════════════
+function evalNFT() {
+  const ec   = parseFloat(document.getElementById('nftEC').value);
+  const ph   = parseFloat(document.getElementById('nftPH').value);
+  const temp = parseFloat(document.getElementById('nftTemp').value);
+
+  // EC — en NFT rango más amplio 800-2500 según cultivo
+  const statusEC = document.getElementById('statusEC_nft');
+  const cardEC   = document.getElementById('cardEC_nft');
+  if (!isNaN(ec)) {
+    statusEC.style.display = 'block';
+    if (ec < 800) {
+      statusEC.style.color = '#dc2626'; statusEC.textContent = '🔴 EC crítica — añadir nutrientes urgente';
+      cardEC.style.borderColor = '#dc2626'; cardEC.style.background = '#fff5f5';
+    } else if (ec < 1200) {
+      statusEC.style.color = '#d97706'; statusEC.textContent = '🟡 EC baja — añadir nutrientes';
+      cardEC.style.borderColor = '#d97706'; cardEC.style.background = '#fffbeb';
+    } else if (ec <= 2000) {
+      statusEC.style.color = '#16a34a'; statusEC.textContent = '✅ EC correcta para la mayoría de cultivos NFT';
+      cardEC.style.borderColor = '#16a34a'; cardEC.style.background = '#f0fdf4';
+    } else {
+      statusEC.style.color = '#d97706'; statusEC.textContent = '🟡 EC alta — solo apta para frutos (tomate, pimiento)';
+      cardEC.style.borderColor = '#d97706'; cardEC.style.background = '#fffbeb';
+    }
+  }
+
+  // pH
+  const statusPH = document.getElementById('statusPH_nft');
+  if (!isNaN(ph)) {
+    statusPH.style.display = 'block';
+    if (ph < 5.5)      { statusPH.style.color='#dc2626'; statusPH.textContent='🔴 pH muy bajo — riesgo toxicidad'; }
+    else if (ph < 6.0) { statusPH.style.color='#d97706'; statusPH.textContent='🟡 pH bajo — vigilar'; }
+    else if (ph <= 6.5){ statusPH.style.color='#16a34a'; statusPH.textContent='✅ pH óptimo NFT'; }
+    else if (ph <= 7.0){ statusPH.style.color='#d97706'; statusPH.textContent='🟡 pH algo alto — vigilar'; }
+    else               { statusPH.style.color='#dc2626'; statusPH.textContent='🔴 pH muy alto — añadir pH-'; }
+  }
+
+  // Temp
+  const statusT = document.getElementById('statusTemp_nft');
+  if (!isNaN(temp)) {
+    statusT.style.display = 'block';
+    if (temp < 16)     { statusT.style.color='#d97706'; statusT.textContent='🟡 Temperatura baja — crecimiento lento'; }
+    else if (temp <= 22){ statusT.style.color='#16a34a'; statusT.textContent='✅ Temperatura óptima'; }
+    else if (temp <= 26){ statusT.style.color='#d97706'; statusT.textContent='🟡 Temperatura alta — vigilar Pythium'; }
+    else               { statusT.style.color='#dc2626'; statusT.textContent='🔴 Temperatura crítica — riesgo Pythium'; }
+  }
+}
+
+async function guardarMedicionNFT() {
+  const ec    = document.getElementById('nftEC').value;
+  const ph    = document.getElementById('nftPH').value;
+  const temp  = document.getElementById('nftTemp').value;
+  const notas = document.getElementById('nftNotas').value;
+  if (!ec && !ph && !temp) { showToast('Introduce al menos un valor', true); return; }
+  const now = new Date();
+  const dia = String(now.getDate()).padStart(2,'0');
+  const mes = String(now.getMonth()+1).padStart(2,'0');
+  const fecha = dia+'/'+mes+'/'+now.getFullYear();
+  const hora  = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  state.mediciones = state.mediciones || [];
+  state.mediciones.push({ fecha, hora, ec, ph, temp, notas });
+  state.ultimaMedicion = { fecha, hora, ec, ph, temp };
+  saveState();
+  showToast('✅ Medición guardada');
+  document.getElementById('nftEC').value = '';
+  document.getElementById('nftPH').value = '';
+  document.getElementById('nftTemp').value = '';
+  document.getElementById('nftNotas').value = '';
+  ['statusEC_nft','statusPH_nft','statusTemp_nft'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  ['cardEC_nft'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.borderColor=''; el.style.background=''; }
+  });
+}
+
+// ══════════════════════════════════════════════════
+// METEOROLOGÍA
+// ══════════════════════════════════════════════════
+function getLat() { return 39.9864; }
+function getLon() { return -0.0513; }
+
+async function cargarMeteoNFT() {
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + getLat() +
+      '&longitude=' + getLon() +
+      '&current=temperature_2m,relative_humidity_2m,windspeed_10m&daily=uv_index_max&forecast_days=1&timezone=auto&models=ecmwf_ifs';
+    const res  = await fetch(url);
+    const data = await res.json();
+    const temp = data.current.temperature_2m;
+    const hum  = data.current.relative_humidity_2m;
+    const viento = data.current.windspeed_10m;
+    const uv   = data.daily?.uv_index_max?.[0] ?? 0;
+    const pvs  = 0.6108 * Math.pow(1 + temp/100, 8.827);
+    const vpd  = Math.round(pvs * (1 - hum/100) * 100) / 100;
+
+    document.getElementById('meteoRiegoInfo').innerHTML =
+      '🌡️ ' + temp + '°C · 💧 ' + hum + '% · ☀️ UV ' + uv + ' · 💨 ' + viento + ' km/h<br>' +
+      '<strong>VPD: ' + vpd + ' kPa</strong> — ' +
+      (vpd > 1.6 ? '🔴 Estrés severo — temperatura agua puede subir' :
+       vpd > 1.2 ? '🟡 Estrés moderado — vigilar temperatura solución' :
+       '✅ Condiciones adecuadas para NFT');
+
+    // Alertas NFT específicas
+    const alertas = [];
+    if (temp > 28) alertas.push('🔴 Temperatura ambiente alta — el agua puede superar 24°C. Riesgo de Pythium.');
+    if (vpd > 1.6) alertas.push('🟡 VPD alto — en NFT el caudal es constante pero las plantas transpiran más. Revisar EC.');
+    if (!state.config?.difusor && temp > 24) alertas.push('⚠️ Sin difusor y temperatura alta — oxígeno disuelto crítico. Instalar difusor urgente.');
+    document.getElementById('nftAlertas').innerHTML = alertas.length > 0
+      ? alertas.map(a => '<div style="margin-bottom:6px">' + a + '</div>').join('')
+      : '<span style="color:#16a34a">✅ Sin alertas activas</span>';
+
+    // Estado caudal
+    document.getElementById('caudalEstado').innerHTML = state.config
+      ? '⚡ Caudal total: <strong>' + Math.round(state.config.caudalTotal * 10)/10 + ' L/min</strong> · ' +
+        state.config.tubos + ' tubos × 1.5 L/min<br>' +
+        '<span style="color:#6b7280;font-size:12px">Bomba continua 24h · Sin temporizador · Flujo por gravedad</span>'
+      : '<span style="color:#6b7280">Configura tu sistema para ver el análisis de caudal</span>';
+
+  } catch(e) {
+    document.getElementById('meteoRiegoInfo').textContent = 'Sin conexión meteorológica';
+  }
+}
+
+async function cargarMeteoCompleto() {
+  const el = document.getElementById('meteoNFTContent');
+  el.innerHTML = '<div class="info-banner"><span>⏳</span><span>Cargando...</span></div>';
+  try {
+    const urlM = 'https://api.open-meteo.com/v1/forecast?latitude=' + getLat() + '&longitude=' + getLon() +
+      '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max' +
+      '&forecast_days=5&timezone=auto&models=ecmwf_ifs';
+    const urlUV = 'https://api.open-meteo.com/v1/forecast?latitude=' + getLat() + '&longitude=' + getLon() +
+      '&daily=uv_index_max&forecast_days=5&timezone=auto';
+    const [rm, ru] = await Promise.all([fetch(urlM), fetch(urlUV)]);
+    const dm = await rm.json();
+    const du = await ru.json();
+    const dias = ['Hoy','Mañana','Pasado','3 días','4 días'];
+    el.innerHTML = dm.daily.time.map((f, i) => {
+      const tmax = Math.round(dm.daily.temperature_2m_max[i]);
+      const tmin = Math.round(dm.daily.temperature_2m_min[i]);
+      const prob = dm.daily.precipitation_probability_max[i];
+      const uv   = Math.round(du.daily?.uv_index_max?.[i] ?? 0);
+      const viento = Math.round(dm.daily.windspeed_10m_max[i]);
+      const aviso = tmax > 28 ? '🔴 Vigilar temp. agua' : tmax > 24 ? '🟡 Temp. moderada' : '✅ OK para NFT';
+      return '<div class="card">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:8px">' +
+        '<strong>' + dias[i] + '</strong><span style="color:#6b7280">' + aviso + '</span></div>' +
+        '<div style="font-size:13px;color:#374151">' +
+        '🌡️ ' + tmin + '–' + tmax + '°C · ☀️ UV ' + uv + ' · 💨 ' + viento + 'km/h · 🌧️ ' + prob + '%' +
+        '</div></div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="info-banner"><span>❌</span><span>Sin conexión</span></div>';
+  }
+}
+
+// ══════════════════════════════════════════════════
+// CONSEJOS NFT
+// ══════════════════════════════════════════════════
+const CONSEJOS_NFT = [
+  { icono:'⚡', titulo:'Bomba siempre encendida', texto:'En NFT la bomba NUNCA se apaga. Si se apaga aunque sea 1 hora las raíces se secan y las plantas mueren. Invierte en una bomba de calidad con garantía y considera una batería de respaldo.' },
+  { icono:'📐', titulo:'La pendiente es crítica', texto:'La pendiente correcta es 1:30 — 1cm de caída por cada 30cm de tubo. Muy poca pendiente = charcos y falta de oxígeno. Demasiada = el agua va demasiado rápida y las raíces no absorben.' },
+  { icono:'🌡️', titulo:'Temperatura del agua', texto:'La temperatura ideal del agua es 18-22°C. Por encima de 24°C el oxígeno disuelto cae y el Pythium prolifera. El calentador solo es necesario en invierno — en verano es más probable tener que enfriar.' },
+  { icono:'🦠', titulo:'Pythium — el enemigo del NFT', texto:'El Pythium es un hongo que destruye las raíces en horas. Condiciones favorables: agua >24°C, poca luz en el depósito, EC demasiado alta. Prevención: temperatura controlada, depósito opaco, difusor de aire 24h.' },
+  { icono:'📏', titulo:'Longitud máxima de tubos', texto:'Los tubos no deben superar 2.5-3 metros. En tubos más largos el extremo final recibe menos nutrientes porque las plantas de la entrada los consumen antes. Si necesitas más plantas, usa más tubos en paralelo.' },
+  { icono:'💧', titulo:'Caudal óptimo', texto:'El caudal estándar es 1-2 L/min por tubo. Demasiado caudal puede arrancar las raíces tiernas de las plántulas. Muy poco caudal = película demasiado fina = estrés hídrico. El caudal calculado por NFTCARU incluye 20% de margen.' },
+  { icono:'🧪', titulo:'EC y pH en NFT', texto:'En NFT el pH puede subir más rápido que en otros sistemas porque las plantas consumen nitratos y liberan bicarbonato. Mide pH cada 1-2 días. El rango óptimo general es 5.5-6.5 dependiendo del cultivo.' },
+  { icono:'🍓', titulo:'Frutos en NFT', texto:'Los tomates, pepinos y pimientos son compatibles con NFT pero necesitan tubos más grandes (110mm+), soporte físico para los tallos, EC más alta (2000-3500) y depósito separado — incompatibles con lechugas.' },
+];
+
+function renderConsejosNFT() {
+  const el = document.getElementById('consejosNFTContent');
+  if (!el) return;
+  el.innerHTML = CONSEJOS_NFT.map(c => `
+    <div class="card" style="margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="font-size:28px">${c.icono}</div>
+        <div style="font-family:var(--font-display);font-size:14px;font-weight:800;color:#111827">${c.titulo}</div>
+      </div>
+      <div style="font-size:13px;color:#374151;line-height:1.6">${c.texto}</div>
+    </div>
+  `).join('');
+}
+function renderConsejos() { renderConsejosNFT(); }
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+function showToast(msg, error=false) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-10px);font-family:var(--font-display);font-weight:700;font-size:13px;padding:10px 20px;border-radius:20px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:9000;white-space:nowrap;max-width:calc(100vw - 32px);text-align:center';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.background = error ? '#dc2626' : '#0369a1';
+  t.style.color = 'white';
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(-10px)'; }, 2800);
+}
+
+// ══════════════════════════════════════════════════
+// ARRANQUE
+// ══════════════════════════════════════════════════
+window.onload = () => {
+  setTimeout(() => {
+    const s = document.getElementById('splashScreen');
+    if (s) s.style.display = 'none';
+  }, 3300);
+
+  document.querySelectorAll('.pin-key[data-digit]').forEach(k => {
+    k.addEventListener('click', () => pinPress(k.dataset.digit));
+  });
+  document.getElementById('pinDelBtn')?.addEventListener('click', pinDel);
+  document.addEventListener('keydown', e => {
+    if (document.getElementById('pinScreen').style.display === 'none') return;
+    if (e.key >= '0' && e.key <= '9') pinPress(e.key);
+    if (e.key === 'Backspace') pinDel();
+  });
+
+  try {
+    const authTs = localStorage.getItem('nftcaru_auth');
+    if (authTs && (Date.now() - parseInt(authTs)) < 8*60*60*1000) {
+      document.getElementById('pinScreen').style.display = 'none';
+      initApp();
+      return;
+    }
+  } catch(e) {}
+};
+</script>
+</body>
+</html>
 
