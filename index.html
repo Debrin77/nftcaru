@@ -291,27 +291,66 @@ body {
 
 /* ══ PLANTAS ══ */
 .planta-card {
-  background:#fff; border:2px solid var(--border); border-radius:14px;
+  background:#fff; border:2px solid #e5e7eb; border-radius:16px;
   padding:14px; margin-bottom:8px;
   box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;
   transition:all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  position:relative; overflow:hidden;
 }
-.planta-card:active { transform:scale(0.97); }
-.planta-card.selected { border-color:#16a34a; background:#f0fdf4; }
-.planta-header { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
-.planta-emoji { font-size:32px; }
-.planta-info { flex:1; }
-.planta-nombre { font-family:var(--font-display); font-size:15px; font-weight:800; color:var(--white); }
-.planta-tipo   { font-size:11px; color:var(--muted); margin-top:2px; }
-.planta-badges { display:flex; flex-wrap:wrap; gap:4px; }
+.planta-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width:4px; border-radius:4px 0 0 4px;
+  background:var(--cat-color,#e5e7eb);
+}
+.planta-card:active { transform:scale(0.97); box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+.planta-card.compat-ok   { border-color:#16a34a; }
+.planta-card.compat-warn { border-color:#d97706; }
+.planta-card.compat-bad  { border-color:#dc2626; opacity:0.7; }
+.planta-header { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.planta-emoji  { font-size:36px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+.planta-info   { flex:1; }
+.planta-nombre { font-family:var(--font-display); font-size:15px; font-weight:800; color:#111827; }
+.planta-tipo   { font-size:11px; color:#6b7280; margin-top:2px; font-weight:600; }
+.planta-compat-badge {
+  font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px;
+  flex-shrink:0;
+}
+.planta-badges { display:flex; flex-wrap:wrap; gap:5px; }
 .badge-param {
-  font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px;
+  font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px;
   display:inline-flex; align-items:center; gap:3px;
 }
 .badge-ec   { background:#e0f2fe; color:#0369a1; }
 .badge-ph   { background:#f0fdf4; color:#15803d; }
 .badge-temp { background:#fffbeb; color:#b45309; }
 .badge-dias { background:#f5f3ff; color:#6d28d9; }
+.badge-esp  { background:#fce7f3; color:#be185d; }
+
+/* Modal detalle planta */
+.planta-detail-header {
+  display:flex; align-items:center; gap:14px; margin-bottom:16px;
+  padding-bottom:14px; border-bottom:1.5px solid #f3f4f6;
+}
+.planta-detail-emoji { font-size:52px; }
+.planta-detail-info  { flex:1; }
+.planta-detail-nombre { font-family:var(--font-display); font-size:20px; font-weight:900; color:#111827; }
+.planta-detail-tipo   { font-size:12px; color:#6b7280; font-weight:600; margin-top:3px; }
+
+.param-table { width:100%; border-collapse:collapse; margin-bottom:14px; }
+.param-table tr { border-bottom:1px solid #f3f4f6; }
+.param-table td { padding:9px 4px; font-size:13px; }
+.param-table td:first-child { color:#6b7280; font-weight:600; width:45%; }
+.param-table td:last-child { color:#111827; font-weight:700; font-family:var(--font-display); }
+
+.compat-section { margin-bottom:14px; }
+.compat-title { font-family:var(--font-display); font-size:12px; font-weight:700; color:#374151; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+.compat-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px; margin-bottom:5px; font-size:12px; font-weight:600; }
+.compat-item.ok   { background:#f0fdf4; color:#14532d; }
+.compat-item.warn { background:#fffbeb; color:#78350f; }
+.compat-item.bad  { background:#fef2f2; color:#7f1d1d; }
+
+.tip-box { background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:10px; padding:10px 12px; font-size:12px; color:#1e40af; line-height:1.6; margin-bottom:10px; }
+.tip-box strong { color:#1d4ed8; }
 
 /* ══ MODAL ══ */
 .modal-overlay {
@@ -623,6 +662,86 @@ body {
 
 </div><!-- /app -->
 
+<!-- MODAL EDITAR CESTA NFT -->
+<div class="modal-overlay" id="modalCestaNFT" onclick="cerrarModalCestaNFT(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalCestaNFTTitle">Editar cesta</div>
+
+    <div class="form-group">
+      <label class="form-label">Variedad</label>
+      <select class="form-select" id="nftEditVariedad" onchange="mostrarCompatNFT()">
+        <option value="">— Vacía —</option>
+        <optgroup label="🥬 Lechugas">
+          <option value="Romana">Romana</option>
+          <option value="Trocadero">Trocadero</option>
+          <option value="Maravilla">Maravilla</option>
+          <option value="Lolo Rosso">Lolo Rosso</option>
+          <option value="Batavia">Batavia</option>
+          <option value="Iceberg">Iceberg</option>
+          <option value="Mantecosa">Mantecosa</option>
+        </optgroup>
+        <optgroup label="🌿 Hierbas">
+          <option value="Albahaca">Albahaca</option>
+          <option value="Menta">Menta</option>
+          <option value="Perejil">Perejil</option>
+          <option value="Cilantro">Cilantro</option>
+          <option value="Orégano">Orégano</option>
+          <option value="Tomillo">Tomillo</option>
+          <option value="Romero">Romero</option>
+          <option value="Cebollino">Cebollino</option>
+          <option value="Estevia">Estevia</option>
+        </optgroup>
+        <optgroup label="🌱 Hojas verdes">
+          <option value="Espinaca">Espinaca</option>
+          <option value="Rúcula">Rúcula</option>
+          <option value="Acelga">Acelga</option>
+          <option value="Kale">Kale</option>
+          <option value="Canónigos">Canónigos</option>
+          <option value="Bok Choy">Bok Choy</option>
+        </optgroup>
+        <optgroup label="🥢 Asiáticas">
+          <option value="Mizuna">Mizuna</option>
+          <option value="Komatsuna">Komatsuna</option>
+          <option value="Pak Choi">Pak Choi</option>
+          <option value="Tatsoi">Tatsoi</option>
+          <option value="Shiso">Shiso</option>
+        </optgroup>
+        <optgroup label="🍓 Frutos">
+          <option value="Fresa">Fresa</option>
+          <option value="Tomate Cherry">Tomate Cherry</option>
+          <option value="Pepino mini">Pepino mini</option>
+          <option value="Pimiento">Pimiento</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div id="nftCompatInfo" style="display:none;margin-bottom:12px;padding:8px 10px;border-radius:8px;font-size:12px;line-height:1.5"></div>
+
+    <div class="form-group">
+      <label class="form-label">Fecha de trasplante</label>
+      <input type="date" class="form-input" id="nftEditFecha">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notas (opcional)</label>
+      <input type="text" class="form-input" id="nftEditNotas" placeholder="Semilla propia, vivero...">
+    </div>
+
+    <button class="btn btn-primary" onclick="guardarCestaNFT()">✓ Guardar</button>
+    <button class="btn" onclick="vaciarCestaNFT()" style="margin-top:8px;background:#fef2f2;color:#dc2626;border:1.5px solid #fca5a5">🗑 Vaciar cesta</button>
+    <button class="btn btn-ghost" onclick="cerrarModalCestaNFT()" style="margin-top:8px">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL DETALLE PLANTA -->
+<div class="modal-overlay" id="modalPlanta" onclick="cerrarModalPlanta(event)">
+  <div class="modal" id="modalPlantaContent">
+    <div class="modal-handle"></div>
+    <div id="plantaDetalleInner"></div>
+  </div>
+</div>
+
 <!-- MODAL CONFIGURAR SISTEMA -->
 <div class="modal-overlay" id="modalSistema" onclick="cerrarModalSistema(event)">
   <div class="modal">
@@ -752,7 +871,15 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch(e) {}
-  return { config: null, mediciones: [], cultivosActivos: [] };
+  return { config: null, mediciones: [], cestas: {} };
+}
+
+// Clave para cesta: 't{tubo}_c{cesta}'
+function cestaKey(t, c) { return 't' + t + '_c' + c; }
+function getCesta(t, c) { return state.cestas[cestaKey(t, c)] || { variedad:'', fecha:'', notas:'' }; }
+function setCesta(t, c, data) {
+  state.cestas[cestaKey(t, c)] = data;
+  saveState();
 }
 function saveState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
@@ -1004,16 +1131,19 @@ function generarSVGDiagrama(cfg) {
     // Cuerpo del tubo
     s += `<rect x="${MARG_L}" y="${ty}" width="${PIPE_W}" height="${PIPE_H}"
       rx="8" fill="url(#pipeGrad)" stroke="${C_PIPE_B}" stroke-width="1.5"/>`;
-
-    // Agua fluyendo (línea animada)
-    const flowLen = PIPE_W;
-    s += `<line x1="${MARG_L+8}" y1="${ty+PIPE_H-8}" x2="${MARG_L+PIPE_W-8}" y2="${ty+PIPE_H-8}"
-      stroke="${C_WATER}" stroke-width="4" stroke-dasharray="20 10"
-      stroke-linecap="round" opacity="0.6"
+    // Agua fluyendo — dirección correcta según serpentina
+    const flujoIzqDer = (t % 2 === 0); // par=izq→der, impar=der→izq
+    // Invertir x1/x2 para que la animación fluya en la dirección correcta
+    const wx1 = flujoIzqDer ? MARG_L+8 : MARG_L+PIPE_W-8;
+    const wx2 = flujoIzqDer ? MARG_L+PIPE_W-8 : MARG_L+8;
+    s += `<line x1="${wx1}" y1="${ty+PIPE_H-8}" x2="${wx2}" y2="${ty+PIPE_H-8}"
+      stroke="${C_WATER}" stroke-width="5" stroke-dasharray="16 12"
+      stroke-linecap="round" opacity="0.7"
       clip-path="url(#clip${t})">
-      <animate attributeName="stroke-dashoffset" from="300" to="0"
-        dur="${1.5 + t*0.3}s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dashoffset" from="560" to="0"
+        dur="${1.8 + t*0.25}s" repeatCount="indefinite" calcMode="linear"/>
     </line>`;
+
 
     // Etiqueta tubo
     s += `<text x="${MARG_L - 8}" y="${ty + PIPE_H/2 + 4}"
@@ -1048,9 +1178,18 @@ function generarSVGDiagrama(cfg) {
         +${cfg.cestas-cestasVer}</text>`;
     }
 
-    // Flecha dirección flujo en el tubo
-    s += `<polygon points="${MARG_L+PIPE_W/2},${ty+PIPE_H-12} ${MARG_L+PIPE_W/2+8},${ty+PIPE_H-6} ${MARG_L+PIPE_W/2+16},${ty+PIPE_H-12}"
-      fill="${C_ARROW}" opacity="0.5"/>`;
+    // Flecha dirección flujo en el tubo — apunta según dirección real
+    const arrowCx = MARG_L + PIPE_W/2;
+    const arrowCy = ty + PIPE_H/2 + 2;
+    if (flujoIzqDer) {
+      // Flecha → derecha
+      s += `<polygon points="${arrowCx-6},${arrowCy-5} ${arrowCx-6},${arrowCy+5} ${arrowCx+7},${arrowCy}"
+        fill="${C_ARROW}" opacity="0.55"/>`;
+    } else {
+      // Flecha ← izquierda
+      s += `<polygon points="${arrowCx+6},${arrowCy-5} ${arrowCx+6},${arrowCy+5} ${arrowCx-7},${arrowCy}"
+        fill="${C_ARROW}" opacity="0.55"/>`;
+    }
   }
 
   // ── TUBERÍA SUBIDA IZQUIERDA (bomba → primer tubo) ────────────────────────
@@ -1183,6 +1322,31 @@ function generarSVGDiagrama(cfg) {
 // ══════════════════════════════════════════════════
 let categoriaActiva = 'todas';
 
+// Colores por categoría
+const CAT_COLORS = {
+  lechugas: '#16a34a', hierbas: '#0369a1', hojas: '#15803d',
+  asiaticas: '#7c3aed', frutos: '#dc2626'
+};
+
+// Compatibilidad entre cultivos en el MISMO depósito
+// Clave: grupos de EC compatible
+const GRUPOS_COMPAT = {
+  lechugas:  { ec:[800,2000],  grupo:'A' },
+  hojas:     { ec:[800,2300],  grupo:'A' },
+  asiaticas: { ec:[1000,2100], grupo:'A' },
+  hierbas:   { ec:[700,1800],  grupo:'B' },
+  frutos:    { ec:[1200,3500], grupo:'C' },
+};
+
+function compatibilidadCultivos(catA, catB) {
+  if (catA === catB) return { ok:'ok', msg:'Misma familia — perfectamente compatibles' };
+  const gA = GRUPOS_COMPAT[catA]?.grupo;
+  const gB = GRUPOS_COMPAT[catB]?.grupo;
+  if (gA === 'C' || gB === 'C') return { ok:'bad', msg:'Incompatible — frutos necesitan EC 2x mayor. Depósito separado.' };
+  if (gA === gB) return { ok:'ok', msg:'Compatibles — mismos rangos de EC y pH' };
+  return { ok:'warn', msg:'Compatibles con precaución — ajustar EC al rango común' };
+}
+
 function filtrarCultivos(cat) {
   categoriaActiva = cat;
   document.querySelectorAll('[id^="cat-"]').forEach(b => {
@@ -1192,9 +1356,10 @@ function filtrarCultivos(cat) {
   });
   const active = document.getElementById('cat-' + cat);
   if (active) {
-    active.style.background = '#e0f2fe';
-    active.style.color = '#0369a1';
-    active.style.borderColor = '#7dd3fc';
+    const col = CAT_COLORS[cat] || '#0369a1';
+    active.style.background = col + '15';
+    active.style.color = col;
+    active.style.borderColor = col;
   }
   renderCultivos();
 }
@@ -1205,49 +1370,233 @@ function renderCultivos() {
     ? CULTIVOS_NFT
     : CULTIVOS_NFT.filter(c => c.categoria === categoriaActiva);
 
-  lista.innerHTML = filtrados.map(c => `
-    <div class="planta-card" onclick="verDetalleCultivo('${c.id}')">
+  lista.innerHTML = filtrados.map(c => {
+    const col = CAT_COLORS[c.categoria] || '#6b7280';
+
+    // Compatibilidad con sistema configurado
+    let compatBadge = '';
+    if (state.config) {
+      const cfg = state.config;
+      if (c.diam_cesta > cfg.dCesta) {
+        compatBadge = '<span class="planta-compat-badge" style="background:#fef3c7;color:#b45309">⚠️ Cesta</span>';
+      } else if (c.categoria === 'frutos' && cfg.dCesta < 90) {
+        compatBadge = '<span class="planta-compat-badge" style="background:#fee2e2;color:#dc2626">⚠️ Tubo</span>';
+      } else {
+        compatBadge = '<span class="planta-compat-badge" style="background:#dcfce7;color:#15803d">✅ OK</span>';
+      }
+    }
+
+    return `<div class="planta-card" style="--cat-color:${col}" onclick="verDetalleCultivo('${c.id}')">
       <div class="planta-header">
         <div class="planta-emoji">${c.emoji}</div>
         <div class="planta-info">
           <div class="planta-nombre">${c.nombre}</div>
-          <div class="planta-tipo">${nombreCategoria(c.categoria)} · ${c.dias} días a cosecha</div>
+          <div class="planta-tipo">${nombreCategoria(c.categoria)} · ✂️ ${c.dias}d · ↕️ max ${c.altura_max}cm</div>
         </div>
-        <div style="font-size:12px;color:#6b7280">ø${c.diam_cesta}mm</div>
+        ${compatBadge}
       </div>
       <div class="planta-badges">
-        <span class="badge-param badge-ec">⚡ ${c.ec[0]}-${c.ec[1]} µS</span>
-        <span class="badge-param badge-ph">🧪 pH ${c.ph[0]}-${c.ph[1]}</span>
+        <span class="badge-param badge-ec">⚡ ${c.ec[0]}-${c.ec[1]}</span>
+        <span class="badge-param badge-ph">🧪 ${c.ph[0]}-${c.ph[1]}</span>
         <span class="badge-param badge-temp">🌡️ ${c.temp[0]}-${c.temp[1]}°C</span>
-        <span class="badge-param badge-dias">📏 ${c.espaciado}cm</span>
+        <span class="badge-param badge-esp">📏 ${c.espaciado}cm</span>
+        <span class="badge-param" style="background:#f1f5f9;color:#475569">ø${c.diam_cesta}mm</span>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function nombreCategoria(cat) {
-  const map = { lechugas:'Lechuga', hierbas:'Hierba aromática', hojas:'Hoja verde', asiaticas:'Asiática', frutos:'Fruto' };
+  const map = {
+    lechugas:'Lechuga', hierbas:'Hierba aromática',
+    hojas:'Hoja verde', asiaticas:'Asiática', frutos:'Fruto'
+  };
   return map[cat] || cat;
 }
 
 function verDetalleCultivo(id) {
   const c = CULTIVOS_NFT.find(x => x.id === id);
   if (!c) return;
+  const col = CAT_COLORS[c.categoria] || '#6b7280';
 
-  // Calcular compatibilidad con el sistema configurado
-  let compatMsg = '';
+  // Compatibilidad con sistema
+  let sistemaCompat = '';
   if (state.config) {
     const cfg = state.config;
-    if (c.diam_cesta > cfg.dCesta) {
-      compatMsg = '⚠️ La cesta recomendada (' + c.diam_cesta + 'mm) es mayor que la configurada (' + cfg.dCesta + 'mm).';
-    } else if (c.altura_max > 50 && cfg.diametro < 110) {
-      compatMsg = '⚠️ Esta planta puede crecer hasta ' + c.altura_max + 'cm. Considera tubos de 110mm.';
+    const items = [];
+    if (c.diam_cesta <= cfg.dCesta) {
+      items.push({ ok:'ok', txt:'Cesta ' + c.diam_cesta + 'mm cabe en tu sistema (ø' + cfg.dCesta + 'mm)' });
     } else {
-      compatMsg = '✅ Compatible con tu sistema actual.';
+      items.push({ ok:'warn', txt:'Necesita cesta ' + c.diam_cesta + 'mm — tienes ø' + cfg.dCesta + 'mm' });
     }
+    if (c.ec[1] > 2000 && cfg.dCesta < 90) {
+      items.push({ ok:'bad', txt:'EC alta (' + c.ec[1] + 'µS) — incompatible con lechugas en mismo depósito' });
+    }
+    if (c.altura_max > 80) {
+      items.push({ ok:'warn', txt:'Planta alta (' + c.altura_max + 'cm) — necesita soporte físico' });
+    } else {
+      items.push({ ok:'ok', txt:'Altura máx ' + c.altura_max + 'cm — sin soporte necesario' });
+    }
+    sistemaCompat = items.map(i => `
+      <div class="compat-item ${i.ok}">
+        <span>${i.ok==='ok'?'✅':i.ok==='warn'?'⚠️':'❌'}</span>
+        <span>${i.txt}</span>
+      </div>`).join('');
+  } else {
+    sistemaCompat = '<div style="font-size:12px;color:#6b7280;padding:8px">Configura tu sistema para ver compatibilidad</div>';
   }
 
-  showToast(c.emoji + ' ' + c.nombre + ' — ' + c.nota);
+  // Compatibilidad con otras categorías
+  const otrasCompat = Object.keys(GRUPOS_COMPAT)
+    .filter(cat => cat !== c.categoria)
+    .map(cat => {
+      const r = compatibilidadCultivos(c.categoria, cat);
+      const icon = r.ok==='ok'?'✅':r.ok==='warn'?'⚠️':'❌';
+      return `<div class="compat-item ${r.ok}">
+        <span>${icon}</span>
+        <span><strong>${nombreCategoria(cat)}:</strong> ${r.msg}</span>
+      </div>`;
+    }).join('');
+
+  document.getElementById('plantaDetalleInner').innerHTML = `
+    <div class="planta-detail-header">
+      <div class="planta-detail-emoji">${c.emoji}</div>
+      <div class="planta-detail-info">
+        <div class="planta-detail-nombre">${c.nombre}</div>
+        <div class="planta-detail-tipo" style="color:${col}">${nombreCategoria(c.categoria)}</div>
+      </div>
+    </div>
+
+    <div class="tip-box">💡 ${c.nota}</div>
+
+    <table class="param-table">
+      <tr><td>⚡ EC solución</td><td>${c.ec[0]} – ${c.ec[1]} µS/cm</td></tr>
+      <tr><td>🧪 pH óptimo</td><td>${c.ph[0]} – ${c.ph[1]}</td></tr>
+      <tr><td>🌡️ Temperatura</td><td>${c.temp[0]} – ${c.temp[1]} °C</td></tr>
+      <tr><td>✂️ Días a cosecha</td><td>${c.dias} días</td></tr>
+      <tr><td>📏 Espaciado</td><td>${c.espaciado} cm entre plantas</td></tr>
+      <tr><td>🪣 Cesta mínima</td><td>Ø ${c.diam_cesta} mm</td></tr>
+      <tr><td>↕️ Altura máxima</td><td>${c.altura_max} cm</td></tr>
+    </table>
+
+    <div class="compat-section">
+      <div class="compat-title">⚙️ Tu sistema</div>
+      ${sistemaCompat}
+    </div>
+
+    <div class="compat-section">
+      <div class="compat-title">🤝 Con otros cultivos</div>
+      ${otrasCompat}
+    </div>
+
+    <button class="btn btn-ghost" onclick="cerrarModalPlanta()" style="margin-top:4px">Cerrar</button>
+  `;
+
+  document.getElementById('modalPlanta').classList.add('open');
+}
+
+function cerrarModalPlanta(e) {
+  if (!e || e.target === document.getElementById('modalPlanta')) {
+    document.getElementById('modalPlanta').classList.remove('open');
+  }
+}
+
+// ══════════════════════════════════════════════════
+// MODAL CESTA NFT
+// ══════════════════════════════════════════════════
+let editandoCesta = null; // { t, c }
+
+function abrirModalCestaNFT(t, c) {
+  editandoCesta = { t, c };
+  const data = getCesta(t, c);
+  document.getElementById('modalCestaNFTTitle').textContent =
+    'Tubo ' + (t+1) + ' — Cesta ' + (c+1);
+  document.getElementById('nftEditVariedad').value = data.variedad || '';
+  document.getElementById('nftEditFecha').value    = data.fecha    || '';
+  document.getElementById('nftEditNotas').value    = data.notas    || '';
+  document.getElementById('nftCompatInfo').style.display = 'none';
+  document.getElementById('modalCestaNFT').classList.add('open');
+  if (data.variedad) mostrarCompatNFT();
+}
+
+function cerrarModalCestaNFT(e) {
+  if (!e || e.target === document.getElementById('modalCestaNFT')) {
+    document.getElementById('modalCestaNFT').classList.remove('open');
+    editandoCesta = null;
+  }
+}
+
+function mostrarCompatNFT() {
+  const variedad = document.getElementById('nftEditVariedad').value;
+  const infoEl   = document.getElementById('nftCompatInfo');
+  if (!variedad) { infoEl.style.display = 'none'; return; }
+
+  const cultivo = CULTIVOS_NFT.find(x => x.nombre === variedad);
+  if (!cultivo) { infoEl.style.display = 'none'; return; }
+
+  const col = CAT_COLORS[cultivo.categoria] || '#6b7280';
+  let html = '<div style="font-weight:700;color:' + col + ';margin-bottom:4px">' +
+    cultivo.emoji + ' ' + cultivo.nombre + ' · ' + nombreCategoria(cultivo.categoria) + '</div>' +
+    '<div style="color:#374151">⚡ EC: ' + cultivo.ec[0] + '-' + cultivo.ec[1] + ' µS/cm · ' +
+    '🧪 pH: ' + cultivo.ph[0] + '-' + cultivo.ph[1] + ' · ' +
+    '✂️ ' + cultivo.dias + ' días</div>';
+
+  // Check compatibilidad con sistema
+  if (state.config && cultivo.diam_cesta > state.config.dCesta) {
+    html += '<div style="color:#d97706;margin-top:4px;font-weight:600">⚠️ Cesta ' + cultivo.diam_cesta +
+      'mm recomendada — tienes ø' + state.config.dCesta + 'mm</div>';
+  }
+
+  infoEl.style.display = 'block';
+  infoEl.style.background = col + '12';
+  infoEl.style.border = '1px solid ' + col + '33';
+  infoEl.innerHTML = html;
+}
+
+function guardarCestaNFT() {
+  if (!editandoCesta) return;
+  const { t, c } = editandoCesta;
+  setCesta(t, c, {
+    variedad: document.getElementById('nftEditVariedad').value,
+    fecha:    document.getElementById('nftEditFecha').value,
+    notas:    document.getElementById('nftEditNotas').value,
+  });
+  cerrarModalCestaNFT();
+  // Redibujar diagrama
+  if (state.config) renderSistema();
+  actualizarStatsPlantadas();
+}
+
+function vaciarCestaNFT() {
+  if (!editandoCesta) return;
+  const { t, c } = editandoCesta;
+  setCesta(t, c, { variedad:'', fecha:'', notas:'' });
+  cerrarModalCestaNFT();
+  if (state.config) renderSistema();
+  actualizarStatsPlantadas();
+}
+
+function actualizarStatsPlantadas() {
+  if (!state.config) return;
+  let total = 0, listas = 0;
+  for (let t = 0; t < state.config.tubos; t++) {
+    for (let c = 0; c < state.config.cestas; c++) {
+      const d = getCesta(t, c);
+      if (d.variedad) {
+        total++;
+        const cultivo = CULTIVOS_NFT.find(x => x.nombre === d.variedad);
+        const dias = d.fecha ? Math.floor((Date.now() - new Date(d.fecha)) / 86400000) : 0;
+        if (cultivo && dias >= cultivo.dias) listas++;
+      }
+    }
+  }
+  document.getElementById('statPlantas').textContent = total;
+  // Badge cosecha
+  if (listas > 0) {
+    document.getElementById('statPlantas').style.color = '#dc2626';
+  } else {
+    document.getElementById('statPlantas').style.color = 'var(--green)';
+  }
 }
 
 // ══════════════════════════════════════════════════
