@@ -228,53 +228,31 @@ body {
 /* ══ SISTEMA NFT VISUAL ══ */
 .nft-diagram {
   background:var(--bg2); border:1.5px solid var(--border); border-radius:16px;
-  padding:16px; margin-bottom:12px; box-shadow:0 2px 12px rgba(0,0,0,0.05);
+  padding:14px; margin-bottom:12px; box-shadow:0 2px 12px rgba(0,0,0,0.05);
 }
-.nft-tubos {
-  display:flex; flex-direction:column; gap:8px; margin:12px 0;
+.nft-svg-wrap {
+  width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;
 }
-.nft-tubo-row {
-  display:flex; align-items:center; gap:8px;
+.nft-svg-wrap svg { display:block; }
+
+/* Animación flujo agua en tubos */
+@keyframes flowRight {
+  0%   { stroke-dashoffset: 300; }
+  100% { stroke-dashoffset: 0; }
 }
-.nft-tubo-label {
-  font-size:10px; color:var(--muted); font-family:var(--font-mono);
-  width:18px; text-align:right; flex-shrink:0;
+@keyframes flowDown {
+  0%   { stroke-dashoffset: 60; }
+  100% { stroke-dashoffset: 0; }
 }
-.nft-tubo-pipe {
-  flex:1; height:28px; background:linear-gradient(135deg,#e0f2fe,#bae6fd);
-  border:2px solid #7dd3fc; border-radius:8px;
-  display:flex; align-items:center; gap:4px; padding:0 6px;
-  position:relative; overflow:hidden;
+@keyframes pumpPulse {
+  0%,100% { opacity:0.7; transform:scale(1); }
+  50%     { opacity:1;   transform:scale(1.1); }
 }
-/* Agua fluyendo */
-.nft-tubo-pipe::before {
-  content:''; position:absolute; bottom:0; left:0; right:0;
-  height:5px; background:linear-gradient(90deg,transparent,#38bdf8,transparent);
-  border-radius:0 0 6px 6px; opacity:0.5;
-  animation:waterFlow 2s linear infinite;
-}
-@keyframes waterFlow {
-  from{transform:translateX(-100%)} to{transform:translateX(100%)}
-}
-.nft-cesta-dot {
-  width:16px; height:16px; border-radius:50%; border:2px solid var(--border);
-  background:#fff; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-  font-size:8px;
-}
-.nft-cesta-dot.plantula   { border-color:#3b82f6; background:#eff6ff; }
-.nft-cesta-dot.crecimiento{ border-color:#16a34a; background:#f0fdf4; }
-.nft-cesta-dot.madurez    { border-color:#d97706; background:#fffbeb; }
-.nft-cesta-dot.cosecha    { border-color:#dc2626; background:#fff5f5; }
 .nft-deposito {
   background:#eff6ff; border:2px solid #7dd3fc; border-radius:12px;
   padding:10px 14px; display:flex; align-items:center; gap:10px;
   margin-top:8px;
 }
-.nft-bomba-arrow {
-  text-align:center; font-size:20px; color:#7dd3fc; margin:4px 0;
-  animation:bounce 1s ease-in-out infinite alternate;
-}
-@keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-4px)} }
 
 /* ══ ESTADÍSTICAS SISTEMA ══ */
 .stats-grid {
@@ -442,20 +420,12 @@ body {
 
       <!-- Diagrama NFT -->
       <div class="nft-diagram">
-        <div class="card-title">📐 Tu sistema</div>
-        <div class="nft-bomba-arrow">↑</div>
-        <div class="nft-tubos" id="nftDiagrama">
+        <div class="card-title">📐 Diagrama del sistema</div>
+        <div class="nft-svg-wrap" id="nftDiagramaWrap">
+          <!-- SVG generado por JS -->
           <div class="info-banner" style="margin:0">
             <span>💡</span>
-            <span>Configura tu sistema en el botón de abajo para ver el diagrama visual</span>
-          </div>
-        </div>
-        <div class="nft-bomba-arrow">↓</div>
-        <div class="nft-deposito">
-          <span style="font-size:24px">🪣</span>
-          <div>
-            <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:#0369a1">Depósito recirculación</div>
-            <div style="font-size:11px;color:var(--muted)" id="depositoInfoSistema">Bomba continua 24h · Sin temporizador</div>
+            <span>Configura tu sistema para ver el diagrama con flujo de agua</span>
           </div>
         </div>
       </div>
@@ -925,43 +895,9 @@ function renderSistema() {
   document.getElementById('statPlantas').textContent = cfg.totalPlantas;
   document.getElementById('statVol').textContent     = cfg.volumen + 'L';
 
-  // Diagrama tubos
-  const diag = document.getElementById('nftDiagrama');
-  diag.innerHTML = '';
-  for (let t = 0; t < Math.min(cfg.tubos, 6); t++) {
-    const row = document.createElement('div');
-    row.className = 'nft-tubo-row';
-    row.innerHTML = '<div class="nft-tubo-label">' + (t+1) + '</div>';
-    const pipe = document.createElement('div');
-    pipe.className = 'nft-tubo-pipe';
-    const mostrar = Math.min(cfg.cestas, 8);
-    for (let c = 0; c < mostrar; c++) {
-      const dot = document.createElement('div');
-      dot.className = 'nft-cesta-dot crecimiento';
-      dot.textContent = '🌿';
-      pipe.appendChild(dot);
-    }
-    if (cfg.cestas > 8) {
-      const mas = document.createElement('span');
-      mas.style.cssText = 'font-size:9px;color:#6b7280;margin-left:4px';
-      mas.textContent = '+' + (cfg.cestas - 8);
-      pipe.appendChild(mas);
-    }
-    row.appendChild(pipe);
-    diag.appendChild(row);
-  }
-  if (cfg.tubos > 6) {
-    const mas = document.createElement('div');
-    mas.style.cssText = 'text-align:center;font-size:11px;color:#6b7280;padding:4px';
-    mas.textContent = '+ ' + (cfg.tubos - 6) + ' tubos más';
-    diag.appendChild(mas);
-  }
-
-  // Info depósito
-  document.getElementById('depositoInfoSistema').textContent =
-    cfg.volumen + 'L · Bomba continua · ' +
-    (cfg.difusor ? 'Difusor ✓' : 'Sin difusor') + ' · ' +
-    (cfg.calentador ? 'Calentador ✓' : 'Sin calentador');
+  // ── DIAGRAMA SVG ──────────────────────────────────────────────────────────
+  const wrap = document.getElementById('nftDiagramaWrap');
+  wrap.innerHTML = generarSVGDiagrama(cfg);
 
   // Resultado bomba
   const br = document.getElementById('bombaResult');
@@ -981,6 +917,265 @@ function renderSistema() {
   } else {
     alertEl.style.display = 'none';
   }
+}
+
+function generarSVGDiagrama(cfg) {
+  // Dimensiones del SVG — adaptado al iPhone 13 (358px útiles)
+  const tubosVer   = Math.min(cfg.tubos, 6);    // max 6 tubos visibles
+  const cestasVer  = Math.min(cfg.cestas, 10);  // max 10 cestas por tubo
+
+  // Medidas base
+  const MARG_L   = 58;   // margen izquierdo (para etiquetas y bajante)
+  const MARG_R   = 18;   // margen derecho
+  const PIPE_H   = 32;   // altura de cada tubo
+  const PIPE_GAP = 22;   // espacio entre tubos
+  const DEP_H    = 64;   // altura depósito
+  const DEP_W    = 140;  // ancho depósito
+  const HEAD_Y   = 20;   // espacio arriba para cabecera
+  const FOOT_PAD = 16;   // padding bajo depósito
+
+  // Ancho total — usamos el ancho disponible
+  const SVG_W  = 358;
+  const PIPE_W = SVG_W - MARG_L - MARG_R;
+
+  // Altura total
+  const tubosH = tubosVer * PIPE_H + (tubosVer - 1) * PIPE_GAP;
+  const SVG_H  = HEAD_Y + tubosH + 50 + DEP_H + FOOT_PAD;
+
+  // Posiciones Y de cada tubo
+  const tuboY = (i) => HEAD_Y + i * (PIPE_H + PIPE_GAP);
+
+  // Posición Y del depósito
+  const DEP_Y  = HEAD_Y + tubosH + 50;
+  const DEP_X  = Math.round((SVG_W - DEP_W) / 2);
+
+  // Colores
+  const C_PIPE    = '#bae6fd';
+  const C_PIPE_B  = '#0369a1';
+  const C_WATER   = '#38bdf8';
+  const C_DRAIN   = '#7dd3fc';
+  const C_PUMP    = '#0369a1';
+  const C_DEP     = '#e0f2fe';
+  const C_DEP_B   = '#0369a1';
+  const C_ARROW   = '#0369a1';
+  const C_TEXT    = '#374151';
+  const C_MUTED   = '#9ca3af';
+  const C_PLANT   = '#16a34a';
+  const C_PLANT_B = '#86efac';
+
+  let s = '';  // SVG string
+
+  // ── DEFS ──────────────────────────────────────────────────────────────────
+  s += `<defs>
+    <linearGradient id="pipeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <linearGradient id="waterGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#38bdf8" stop-opacity="0.8"/>
+      <stop offset="70%" stop-color="#7dd3fc" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="depGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="${C_ARROW}"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+    </marker>
+    <marker id="arrowDown" markerWidth="8" markerHeight="8" refX="3" refY="4" orient="auto">
+      <path d="M0,0 L6,0 L3,8 z" fill="${C_DRAIN}"/>
+    </marker>
+    <!-- Clip para tubos -->
+    ${Array.from({length:tubosVer},(_,i) =>
+      `<clipPath id="clip${i}"><rect x="${MARG_L}" y="${tuboY(i)}" width="${PIPE_W}" height="${PIPE_H}" rx="8"/></clipPath>`
+    ).join('')}
+  </defs>`;
+
+  // ── TUBOS ─────────────────────────────────────────────────────────────────
+  for (let t = 0; t < tubosVer; t++) {
+    const ty = tuboY(t);
+    const isLast = t === tubosVer - 1;
+
+    // Cuerpo del tubo
+    s += `<rect x="${MARG_L}" y="${ty}" width="${PIPE_W}" height="${PIPE_H}"
+      rx="8" fill="url(#pipeGrad)" stroke="${C_PIPE_B}" stroke-width="1.5"/>`;
+
+    // Agua fluyendo (línea animada)
+    const flowLen = PIPE_W;
+    s += `<line x1="${MARG_L+8}" y1="${ty+PIPE_H-8}" x2="${MARG_L+PIPE_W-8}" y2="${ty+PIPE_H-8}"
+      stroke="${C_WATER}" stroke-width="4" stroke-dasharray="20 10"
+      stroke-linecap="round" opacity="0.6"
+      clip-path="url(#clip${t})">
+      <animate attributeName="stroke-dashoffset" from="300" to="0"
+        dur="${1.5 + t*0.3}s" repeatCount="indefinite"/>
+    </line>`;
+
+    // Etiqueta tubo
+    s += `<text x="${MARG_L - 8}" y="${ty + PIPE_H/2 + 4}"
+      font-family="Inconsolata,monospace" font-size="11" font-weight="600"
+      fill="${C_TEXT}" text-anchor="end">T${t+1}</text>`;
+
+    // Cestas con plantas
+    const cestaSpacing = (PIPE_W - 16) / (cestasVer + 1);
+    for (let c = 0; c < cestasVer; c++) {
+      const cx = MARG_L + 8 + cestaSpacing * (c + 1);
+      const cy = ty + PIPE_H/2;
+      const r  = 9;
+      // Color según posición (simula etapas de cultivo)
+      const pct = c / Math.max(1, cestasVer - 1);
+      let fill, stroke, emoji;
+      if (pct < 0.25)      { fill='#eff6ff'; stroke='#3b82f6'; emoji='·'; }
+      else if (pct < 0.5)  { fill='#f0fdf4'; stroke='#16a34a'; emoji='·'; }
+      else if (pct < 0.75) { fill='#fffbeb'; stroke='#d97706'; emoji='·'; }
+      else                  { fill='#fff5f5'; stroke='#dc2626'; emoji='·'; }
+
+      s += `<circle cx="${cx}" cy="${cy}" r="${r}"
+        fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+      // Mini planta encima
+      s += `<text x="${cx}" y="${ty-3}"
+        font-size="10" text-anchor="middle" opacity="0.8">🌿</text>`;
+    }
+
+    // Si hay más cestas, indicarlo
+    if (cfg.cestas > cestasVer) {
+      s += `<text x="${MARG_L+PIPE_W-4}" y="${ty+PIPE_H/2+4}"
+        font-family="Inconsolata,monospace" font-size="9" fill="${C_MUTED}" text-anchor="end">
+        +${cfg.cestas-cestasVer}</text>`;
+    }
+
+    // Flecha dirección flujo en el tubo
+    s += `<polygon points="${MARG_L+PIPE_W/2},${ty+PIPE_H-12} ${MARG_L+PIPE_W/2+8},${ty+PIPE_H-6} ${MARG_L+PIPE_W/2+16},${ty+PIPE_H-12}"
+      fill="${C_ARROW}" opacity="0.5"/>`;
+  }
+
+  // ── TUBERÍA SUBIDA IZQUIERDA (bomba → primer tubo) ────────────────────────
+  // Línea vertical desde depósito hasta primer tubo
+  const pumpX   = DEP_X + 30;
+  const firstY  = tuboY(0) + PIPE_H/2;
+  const depTopY = DEP_Y;
+
+  s += `<line x1="${pumpX}" y1="${depTopY}" x2="${pumpX}" y2="${firstY}"
+    stroke="${C_PUMP}" stroke-width="3" stroke-linecap="round"/>`;
+  // Flecha hacia arriba en la subida
+  s += `<polygon points="${pumpX-5},${firstY+18} ${pumpX+5},${firstY+18} ${pumpX},${firstY+4}"
+    fill="${C_PUMP}"/>`;
+  // Label subida
+  s += `<text x="${pumpX-8}" y="${(depTopY+firstY)/2}"
+    font-family="Syne,sans-serif" font-size="9" font-weight="700"
+    fill="${C_PUMP}" text-anchor="middle" transform="rotate(-90,${pumpX-8},${(depTopY+firstY)/2})">
+    BOMBA ↑</text>`;
+
+  // Curva del tubo izquierdo conectando tubos entre sí
+  for (let t = 0; t < tubosVer - 1; t++) {
+    const y1 = tuboY(t) + PIPE_H/2;
+    const y2 = tuboY(t+1) + PIPE_H/2;
+    const connX = MARG_L - 16;
+    const side = t % 2 === 0 ? 'right' : 'left';
+
+    if (side === 'right') {
+      // Conecta por la derecha: fin tubo t → inicio tubo t+1
+      const rx = MARG_L + PIPE_W + 8;
+      s += `<path d="M${MARG_L+PIPE_W},${y1} L${rx},${y1} Q${rx+10},${y1} ${rx+10},${y1+(y2-y1)/2} Q${rx+10},${y2} ${rx},${y2} L${MARG_L+PIPE_W},${y2}"
+        fill="none" stroke="${C_DRAIN}" stroke-width="2.5" stroke-linecap="round"/>`;
+      // Flecha indicando bajada
+      s += `<polygon points="${rx+6},${y1+(y2-y1)/2-4} ${rx+14},${y1+(y2-y1)/2-4} ${rx+10},${y1+(y2-y1)/2+4}"
+        fill="${C_DRAIN}"/>`;
+    } else {
+      // Conecta por la izquierda
+      s += `<path d="M${MARG_L},${y1} L${MARG_L-8},${y1} Q${MARG_L-18},${y1} ${MARG_L-18},${y1+(y2-y1)/2} Q${MARG_L-18},${y2} ${MARG_L-8},${y2} L${MARG_L},${y2}"
+        fill="none" stroke="${C_DRAIN}" stroke-width="2.5" stroke-linecap="round"/>`;
+      s += `<polygon points="${MARG_L-14},${y1+(y2-y1)/2-4} ${MARG_L-22},${y1+(y2-y1)/2-4} ${MARG_L-18},${y1+(y2-y1)/2+4}"
+        fill="${C_DRAIN}"/>`;
+    }
+  }
+
+  // ── TUBERÍA DRENAJE (último tubo → depósito) ──────────────────────────────
+  const lastY  = tuboY(tubosVer-1) + PIPE_H/2;
+  const lastIsRight = (tubosVer - 1) % 2 === 0; // ¿sale por la derecha?
+  const drainX = lastIsRight ? MARG_L + PIPE_W + 18 : MARG_L - 18;
+  const depMidX = DEP_X + DEP_W - 30;
+
+  s += `<path d="M${drainX},${lastY} L${drainX},${DEP_Y}"
+    fill="none" stroke="${C_DRAIN}" stroke-width="2.5" stroke-linecap="round"
+    stroke-dasharray="6 3"/>`;
+  s += `<polygon points="${drainX-5},${DEP_Y-12} ${drainX+5},${DEP_Y-12} ${drainX},${DEP_Y}"
+    fill="${C_DRAIN}"/>`;
+  s += `<text x="${drainX + (lastIsRight ? 6 : -6)}" y="${(lastY+DEP_Y)/2}"
+    font-family="Syne,sans-serif" font-size="9" font-weight="700"
+    fill="${C_DRAIN}" text-anchor="${lastIsRight ? 'start' : 'end'}"
+    transform="rotate(-90,${drainX + (lastIsRight ? 6 : -6)},${(lastY+DEP_Y)/2})">
+    DRENAJE ↓</text>`;
+
+  // ── DEPÓSITO ──────────────────────────────────────────────────────────────
+  // Cuerpo
+  s += `<rect x="${DEP_X}" y="${DEP_Y}" width="${DEP_W}" height="${DEP_H}"
+    rx="12" fill="url(#depGrad)" stroke="${C_DEP_B}" stroke-width="2"/>`;
+
+  // Nivel agua animado
+  s += `<rect x="${DEP_X+3}" y="${DEP_Y + DEP_H*0.45}" width="${DEP_W-6}" height="${DEP_H*0.5}"
+    rx="9" fill="${C_WATER}" opacity="0.3">
+    <animate attributeName="opacity" from="0.2" to="0.4" dur="2s" repeatCount="indefinite" direction="alternate"/>
+  </rect>`;
+
+  // Bomba (icono)
+  const bx = DEP_X + 18;
+  const by = DEP_Y + DEP_H/2;
+  s += `<circle cx="${bx}" cy="${by}" r="14"
+    fill="${C_PUMP}" opacity="0.15">
+    <animate attributeName="r" from="12" to="16" dur="1.5s" repeatCount="indefinite" direction="alternate"/>
+  </circle>`;
+  s += `<circle cx="${bx}" cy="${by}" r="10" fill="${C_PUMP}" opacity="0.9"/>`;
+  s += `<text x="${bx}" y="${by+4}" font-size="10" text-anchor="middle" fill="white">⚡</text>`;
+
+  // Texto depósito
+  s += `<text x="${DEP_X + DEP_W/2 + 10}" y="${DEP_Y + 20}"
+    font-family="Syne,sans-serif" font-size="11" font-weight="800"
+    fill="${C_DEP_B}" text-anchor="middle">DEPÓSITO ${cfg.volumen}L</text>`;
+  s += `<text x="${DEP_X + DEP_W/2 + 10}" y="${DEP_Y + 36}"
+    font-family="Inconsolata,monospace" font-size="10"
+    fill="${C_TEXT}" text-anchor="middle">Bomba continua 24h</text>`;
+
+  // Equipamiento
+  let eqIcons = [];
+  if (cfg.difusor)    eqIcons.push('💨');
+  if (cfg.calentador) eqIcons.push('🌡️');
+  if (eqIcons.length > 0) {
+    s += `<text x="${DEP_X + DEP_W/2 + 10}" y="${DEP_Y + 52}"
+      font-size="12" text-anchor="middle">${eqIcons.join('  ')}</text>`;
+  }
+
+  // Si hay más de 6 tubos, indicarlo
+  if (cfg.tubos > 6) {
+    s += `<rect x="${MARG_L}" y="${HEAD_Y + tubosH + 8}" width="${PIPE_W}" height="22"
+      rx="6" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1"/>`;
+    s += `<text x="${MARG_L + PIPE_W/2}" y="${HEAD_Y + tubosH + 22}"
+      font-family="Inconsolata,monospace" font-size="11" fill="${C_MUTED}" text-anchor="middle">
+      + ${cfg.tubos - 6} tubos más (${(cfg.tubos-6)*cfg.cestas} plantas adicionales)</text>`;
+  }
+
+  // ── LEYENDA ───────────────────────────────────────────────────────────────
+  const leyY = SVG_H - 8;
+  const leyItems = [
+    { color:'#3b82f6', label:'Plántula' },
+    { color:'#16a34a', label:'Crecimiento' },
+    { color:'#d97706', label:'Madurez' },
+    { color:'#dc2626', label:'Cosecha' },
+  ];
+  const leyW = (SVG_W - 16) / leyItems.length;
+  leyItems.forEach((item, i) => {
+    const lx = 8 + i * leyW + leyW/2;
+    s += `<circle cx="${lx - 22}" cy="${leyY - 3}" r="5" fill="${item.color}" opacity="0.8"/>`;
+    s += `<text x="${lx - 14}" y="${leyY}"
+      font-family="Inconsolata,monospace" font-size="9" fill="${C_MUTED}">${item.label}</text>`;
+  });
+
+  return `<svg width="${SVG_W}" height="${SVG_H}" viewBox="0 0 ${SVG_W} ${SVG_H}"
+    xmlns="http://www.w3.org/2000/svg" style="max-width:100%">${s}</svg>`;
 }
 
 // ══════════════════════════════════════════════════
@@ -1294,4 +1489,3 @@ window.onload = () => {
 </script>
 </body>
 </html>
-
