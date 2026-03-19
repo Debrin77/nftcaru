@@ -169,7 +169,9 @@ body {
 .tab-btn#btn-plantas  { --tab-color:#16a34a; }
 .tab-btn#btn-medir    { --tab-color:#7c3aed; }
 .tab-btn#btn-riego    { --tab-color:#0891b2; }
-.tab-btn#btn-meteo    { --tab-color:#ea580c; }
+.tab-btn#btn-calendario { --tab-color:#0891b2; }
+.tab-btn#btn-historial  { --tab-color:#7c3aed; }
+.tab-btn#btn-meteo      { --tab-color:#ea580c; }
 .tab-btn#btn-consejos { --tab-color:#db2777; }
 .tab-btn.active { color:var(--tab-color); }
 .tab-btn.active::before {
@@ -524,84 +526,215 @@ body {
     <!-- TAB: MEDIR -->
     <div class="tab-panel" id="tab-medir">
       <div class="section-title">📊 <span class="accent">Mediciones</span></div>
-      <div class="info-banner"><span>💧</span><span>En NFT la bomba es continua — mide EC y pH cada 1-2 días. Pequeñas variaciones son normales por evaporación.</span></div>
 
-      <!-- EC -->
-      <div class="card" id="cardEC_nft">
-        <div class="card-title">⚡ EC</div>
-        <div style="display:flex;align-items:center;gap:10px">
+      <!-- Última medición -->
+      <div class="card" id="ultimaMedNFTCard" style="display:none">
+        <div class="card-title">⏱ Última medición</div>
+        <div id="ultimaMedNFTInfo" style="font-size:13px;color:var(--muted);line-height:1.8"></div>
+      </div>
+
+      <div class="info-banner">
+        <span>💧</span>
+        <span>En NFT la bomba es <strong>continua 24h</strong>. Mide cada 1-2 días. Las fluctuaciones de EC son normales — el agua se evapora pero los nutrientes no.</span>
+      </div>
+
+      <!-- Grid 2x2 parámetros -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+
+        <!-- EC -->
+        <div class="card" id="cardEC_nft" style="margin-bottom:0">
+          <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;justify-content:space-between">
+            <span>⚡ EC</span><span style="font-size:10px;color:#9ca3af">µS/cm</span>
+          </div>
           <input type="number" id="nftEC" placeholder="1400" inputmode="numeric"
-            style="flex:1;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;
-                   color:var(--white);font-size:22px;font-weight:600;padding:10px 14px;outline:none;
-                   font-family:var(--font-mono);-webkit-appearance:none" oninput="evalNFT()">
-          <span style="color:var(--muted);font-size:12px">µS/cm</span>
+            style="width:100%;background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:10px;
+                   color:#111827;font-size:22px;font-weight:700;padding:8px 10px;outline:none;
+                   font-family:var(--font-mono);-webkit-appearance:none;transition:border-color 0.2s"
+            oninput="evalNFT()">
+          <div id="statusEC_nft" style="margin-top:6px;font-size:11px;font-weight:700;display:none;padding:4px 8px;border-radius:6px"></div>
         </div>
-        <div id="statusEC_nft" style="margin-top:8px;font-size:13px;font-weight:600;display:none"></div>
-      </div>
 
-      <!-- pH -->
-      <div class="card" id="cardPH_nft">
-        <div class="card-title">🧪 pH</div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <!-- pH -->
+        <div class="card" id="cardPH_nft" style="margin-bottom:0">
+          <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;justify-content:space-between">
+            <span>🧪 pH</span><span style="font-size:10px;color:#9ca3af">5.5–6.5</span>
+          </div>
           <input type="number" id="nftPH" placeholder="6.0" inputmode="decimal" step="0.1"
-            style="flex:1;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;
-                   color:var(--white);font-size:22px;font-weight:600;padding:10px 14px;outline:none;
-                   font-family:var(--font-mono);-webkit-appearance:none" oninput="evalNFT()">
-          <span style="color:var(--muted);font-size:12px">pH</span>
+            style="width:100%;background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:10px;
+                   color:#111827;font-size:22px;font-weight:700;padding:8px 10px;outline:none;
+                   font-family:var(--font-mono);-webkit-appearance:none;transition:border-color 0.2s"
+            oninput="evalNFT()">
+          <div id="statusPH_nft" style="margin-top:6px;font-size:11px;font-weight:700;display:none;padding:4px 8px;border-radius:6px"></div>
         </div>
-        <div id="statusPH_nft" style="margin-top:8px;font-size:13px;font-weight:600;display:none"></div>
-      </div>
 
-      <!-- Temperatura agua -->
-      <div class="card">
-        <div class="card-title">🌡️ Temperatura agua</div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <!-- Temperatura -->
+        <div class="card" id="cardTemp_nft" style="margin-bottom:0">
+          <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;justify-content:space-between">
+            <span>🌡️ Temp agua</span><span style="font-size:10px;color:#9ca3af">18–22°C</span>
+          </div>
           <input type="number" id="nftTemp" placeholder="20" inputmode="decimal" step="0.1"
-            style="flex:1;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;
-                   color:var(--white);font-size:22px;font-weight:600;padding:10px 14px;outline:none;
-                   font-family:var(--font-mono);-webkit-appearance:none" oninput="evalNFT()">
-          <span style="color:var(--muted);font-size:12px">°C</span>
+            style="width:100%;background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:10px;
+                   color:#111827;font-size:22px;font-weight:700;padding:8px 10px;outline:none;
+                   font-family:var(--font-mono);-webkit-appearance:none;transition:border-color 0.2s"
+            oninput="evalNFT()">
+          <div id="statusTemp_nft" style="margin-top:6px;font-size:11px;font-weight:700;display:none;padding:4px 8px;border-radius:6px"></div>
         </div>
-        <div id="statusTemp_nft" style="margin-top:8px;font-size:13px;font-weight:600;display:none"></div>
+
+        <!-- Volumen -->
+        <div class="card" id="cardVol_nft" style="margin-bottom:0">
+          <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;justify-content:space-between">
+            <span>🪣 Volumen</span><span style="font-size:10px;color:#9ca3af">litros</span>
+          </div>
+          <input type="number" id="nftVol" placeholder="50" inputmode="numeric"
+            style="width:100%;background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:10px;
+                   color:#111827;font-size:22px;font-weight:700;padding:8px 10px;outline:none;
+                   font-family:var(--font-mono);-webkit-appearance:none;transition:border-color 0.2s"
+            oninput="evalNFT()">
+          <div id="statusVol_nft" style="margin-top:6px;font-size:11px;font-weight:700;display:none;padding:4px 8px;border-radius:6px"></div>
+        </div>
+
       </div>
 
+      <!-- Correcciones calculadas -->
+      <div id="nftCorrecciones" style="display:none" class="card">
+        <div class="card-title">💊 Correcciones sugeridas</div>
+        <div id="nftCorreccionesContent" style="font-size:13px;line-height:1.8"></div>
+      </div>
+
+      <!-- Notas -->
       <div class="card">
         <div class="card-title">📝 Notas</div>
         <textarea id="nftNotas" class="form-input" style="height:70px;resize:none;font-size:14px" placeholder="Observaciones, incidencias..."></textarea>
       </div>
 
-      <button class="btn btn-primary" onclick="guardarMedicionNFT()">💾 Guardar medición</button>
+      <div style="position:sticky;bottom:0;background:linear-gradient(180deg,transparent,var(--bg) 40%);padding:16px 0 8px">
+        <button class="btn btn-primary" onclick="guardarMedicionNFT()">💾 Guardar medición</button>
+      </div>
     </div>
 
     <!-- TAB: RIEGO NFT -->
     <div class="tab-panel" id="tab-riego">
       <div class="section-title">💧 <span class="accent">Riego</span> NFT</div>
-      <div class="info-banner">
-        <span>ℹ️</span>
-        <span>El sistema NFT usa <strong>bomba continua 24h</strong>. No hay ciclos ON/OFF. El caudal y la pendiente determinan la salud del cultivo.</span>
-      </div>
 
-      <!-- Estado actual del sistema -->
-      <div class="card">
-        <div class="card-title">⚡ Estado del caudal</div>
-        <div id="caudalEstado">
-          <div style="font-size:13px;color:var(--muted)">Configura tu sistema para ver el análisis de caudal</div>
+      <!-- Banner bomba continua -->
+      <div style="background:#0369a1;border-radius:14px;padding:14px 16px;margin-bottom:10px;
+                  display:flex;align-items:center;gap:12px">
+        <span style="font-size:28px">⚡</span>
+        <div>
+          <div style="font-family:var(--font-display);font-size:14px;font-weight:800;color:white">Bomba continua 24h</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px">Sin temporizador · El caudal es constante siempre</div>
+        </div>
+        <div style="margin-left:auto;font-size:10px;color:rgba(255,255,255,0.7);text-align:right">
+          <div id="riegoBombaStatus" style="font-size:16px">🟢</div>
+          <div>activa</div>
         </div>
       </div>
 
-      <!-- Alertas NFT específicas -->
+      <!-- Estado caudal con datos reales del sistema -->
       <div class="card">
-        <div class="card-title">⚠️ Alertas NFT</div>
-        <div id="nftAlertas" style="font-size:13px;color:var(--muted)">Sin alertas activas</div>
+        <div class="card-title">🌊 Análisis del caudal</div>
+        <div id="caudalEstado">
+          <div class="info-banner" style="margin:0"><span>💡</span><span>Configura tu sistema en la pestaña Sistema para ver el análisis</span></div>
+        </div>
       </div>
 
-      <!-- Info meteorológica -->
-      <div class="card" id="meteoRiegoCard">
-        <div class="card-title">🌡️ Condiciones actuales</div>
-        <div id="meteoRiegoInfo" style="font-size:13px;color:var(--muted)">Cargando...</div>
+      <!-- Condiciones meteo con impacto NFT -->
+      <div class="card">
+        <div class="card-title">🌡️ Condiciones y su impacto</div>
+        <div id="meteoRiegoInfo" style="font-size:13px;color:var(--muted)">
+          <div style="text-align:center;padding:8px;color:#9ca3af">Cargando datos meteorológicos...</div>
+        </div>
       </div>
 
-      <button class="btn btn-primary" onclick="cargarMeteoNFT()">🔄 Actualizar condiciones</button>
+      <!-- Alertas específicas NFT -->
+      <div class="card" id="alertasNFTCard">
+        <div class="card-title">⚠️ Alertas del sistema</div>
+        <div id="nftAlertas"><div style="color:#16a34a;font-size:13px;font-weight:600">✅ Sin alertas activas</div></div>
+      </div>
+
+      <!-- Temperatura del agua calculada -->
+      <div class="card" id="tempAguaCard" style="display:none">
+        <div class="card-title">🌡️ Estimación temperatura del agua</div>
+        <div id="tempAguaEstimada" style="font-size:13px"></div>
+      </div>
+
+      <button class="btn" onclick="cargarMeteoNFT()"
+        style="background:#e0f2fe;color:#0369a1;border:1.5px solid #7dd3fc;
+               font-family:var(--font-display);font-weight:700">
+        🔄 Actualizar condiciones
+      </button>
+    </div>
+
+    <!-- TAB: CALENDARIO -->
+    <div class="tab-panel" id="tab-calendario">
+      <div class="section-title">📅 <span class="accent">Calendario</span></div>
+
+      <!-- Navegación mes -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <button onclick="calNavegar(-1)" style="width:40px;height:40px;border-radius:50%;border:1.5px solid var(--border);background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:800;color:#111827" id="calTituloNFT"></div>
+        <button onclick="calNavegar(1)"  style="width:40px;height:40px;border-radius:50%;border:1.5px solid var(--border);background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
+      </div>
+
+      <!-- Grid días semana -->
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#9ca3af;padding:4px">L</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#9ca3af;padding:4px">M</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#9ca3af;padding:4px">X</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#9ca3af;padding:4px">J</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#9ca3af;padding:4px">V</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#9ca3af;padding:4px">S</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#9ca3af;padding:4px">D</div>
+      </div>
+      <div id="calGridNFT" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px"></div>
+
+      <!-- Leyenda -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#374151"><div style="width:10px;height:10px;border-radius:50%;background:#0369a1"></div>Medición</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#374151"><div style="width:10px;height:10px;border-radius:50%;background:#16a34a"></div>Recarga</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#374151"><div style="width:10px;height:10px;border-radius:50%;background:#d97706"></div>Limpieza</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#374151"><div style="width:10px;height:10px;border-radius:50%;background:#dc2626"></div>Cosecha</div>
+      </div>
+
+      <!-- Próximos eventos -->
+      <div class="card">
+        <div class="card-title">📋 Próximos eventos</div>
+        <div id="calEventosNFT" style="font-size:13px;color:var(--muted)">Cargando...</div>
+      </div>
+    </div>
+
+    <!-- TAB: HISTORIAL -->
+    <div class="tab-panel" id="tab-historial">
+      <div class="section-title">📈 <span class="accent">Historial</span></div>
+
+      <!-- Mini gráficas -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div class="card" style="margin-bottom:0;padding:10px">
+          <div style="font-size:10px;color:#0369a1;font-weight:700;text-transform:uppercase;margin-bottom:6px">⚡ EC (µS/cm)</div>
+          <canvas id="chartEC_nft" height="60"></canvas>
+        </div>
+        <div class="card" style="margin-bottom:0;padding:10px">
+          <div style="font-size:10px;color:#16a34a;font-weight:700;text-transform:uppercase;margin-bottom:6px">🧪 pH</div>
+          <canvas id="chartPH_nft" height="60"></canvas>
+        </div>
+        <div class="card" style="margin-bottom:0;padding:10px">
+          <div style="font-size:10px;color:#d97706;font-weight:700;text-transform:uppercase;margin-bottom:6px">🌡️ Temp (°C)</div>
+          <canvas id="chartTemp_nft" height="60"></canvas>
+        </div>
+        <div class="card" style="margin-bottom:0;padding:10px">
+          <div style="font-size:10px;color:#7c3aed;font-weight:700;text-transform:uppercase;margin-bottom:6px">🪣 Vol (L)</div>
+          <canvas id="chartVol_nft" height="60"></canvas>
+        </div>
+      </div>
+
+      <!-- Tabla últimas mediciones -->
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;display:flex;align-items:center">
+          📋 Últimas mediciones
+          <button onclick="exportarCSV()" style="font-size:11px;padding:4px 10px;border-radius:20px;border:1.5px solid #e5e7eb;background:#f9fafb;color:#374151;cursor:pointer;font-weight:600">📥 CSV</button>
+        </div>
+        <div id="tablaHistorialNFT" style="font-size:12px;overflow-x:auto"></div>
+      </div>
     </div>
 
     <!-- TAB: METEO -->
@@ -645,6 +778,18 @@ body {
         <path d="M12 2C6 2 2 8 2 13a10 10 0 0020 0c0-5-4-11-10-11z"/>
       </svg>
       Riego
+    </button>
+    <button class="tab-btn" id="btn-calendario" onclick="goTab('calendario')" aria-label="Calendario">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Calendario
+    </button>
+    <button class="tab-btn" id="btn-historial" onclick="goTab('historial')" aria-label="Historial">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Historial
     </button>
     <button class="tab-btn" id="btn-meteo" onclick="goTab('meteo')" aria-label="Meteo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -869,15 +1014,20 @@ let currentTab = 'sistema';
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (!s.cestas) s.cestas = {};
+      return s;
+    }
   } catch(e) {}
   return { config: null, mediciones: [], cestas: {} };
 }
 
 // Clave para cesta: 't{tubo}_c{cesta}'
 function cestaKey(t, c) { return 't' + t + '_c' + c; }
-function getCesta(t, c) { return state.cestas[cestaKey(t, c)] || { variedad:'', fecha:'', notas:'' }; }
+function getCesta(t, c) { if (!state.cestas) state.cestas = {}; return state.cestas[cestaKey(t, c)] || { variedad:'', fecha:'', notas:'' }; }
 function setCesta(t, c, data) {
+  if (!state.cestas) state.cestas = {};
   state.cestas[cestaKey(t, c)] = data;
   saveState();
 }
@@ -928,10 +1078,12 @@ function goTab(tab) {
   document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('btn-' + tab).classList.add('active');
   currentTab = tab;
-  if (tab === 'plantas') renderCultivos();
-  if (tab === 'riego')   cargarMeteoNFT();
-  if (tab === 'meteo')   cargarMeteoCompleto();
-  if (tab === 'consejos') renderConsejos();
+  if (tab === 'plantas')    renderCultivos();
+  if (tab === 'riego')      cargarMeteoNFT();
+  if (tab === 'meteo')      cargarMeteoCompleto();
+  if (tab === 'consejos')   renderConsejos();
+  if (tab === 'calendario') { calFechaNFT = new Date(); renderCalendarioNFT(); }
+  if (tab === 'historial')  renderHistorialNFT();
 }
 
 // ══════════════════════════════════════════════════
@@ -943,6 +1095,8 @@ function initApp() {
   if (state.config) renderSistema();
   renderCultivos();
   renderConsejosNFT();
+  mostrarUltimaMedNFT();
+  actualizarStatsPlantadas();
 }
 function updateClock() {
   document.getElementById('headerTime').textContent =
@@ -1028,10 +1182,10 @@ function renderSistema() {
 
   // Añadir event listeners DESPUÉS de insertar el SVG en el DOM
   // (onclick inline en SVG dinámico no funciona en Safari/iOS)
-  wrap.querySelectorAll('.nft-cesta-tap').forEach(el => {
+  wrap.querySelectorAll('.nc').forEach(el => {
     el.addEventListener('click', function() {
-      const t = parseInt(this.getAttribute('data-tubo'));
-      const c = parseInt(this.getAttribute('data-cesta'));
+      const t = parseInt(this.getAttribute('data-t'));
+      const c = parseInt(this.getAttribute('data-c'));
       abrirModalCestaNFT(t, c);
     });
   });
@@ -1160,34 +1314,42 @@ function generarSVGDiagrama(cfg) {
       font-family="Inconsolata,monospace" font-size="11" font-weight="600"
       fill="${C_TEXT}" text-anchor="end">T${t+1}</text>`;
 
-    // Cestas con plantas
+    // Cestas con plantas — pulsables con data attributes
     const cestaSpacing = (PIPE_W - 16) / (cestasVer + 1);
     for (let c = 0; c < cestasVer; c++) {
-      const cx = MARG_L + 8 + cestaSpacing * (c + 1);
+      const cReal = flujoIzqDer ? c : (cestasVer - 1 - c);
+      const cx = MARG_L + 8 + cestaSpacing * (cReal + 1);
       const cy = ty + PIPE_H/2;
-      const r  = 9;
-      // Color según posición (simula etapas de cultivo)
-      const pct = c / Math.max(1, cestasVer - 1);
-      let fill, stroke, emoji;
-      if (pct < 0.25)      { fill='#eff6ff'; stroke='#3b82f6'; emoji='·'; }
-      else if (pct < 0.5)  { fill='#f0fdf4'; stroke='#16a34a'; emoji='·'; }
-      else if (pct < 0.75) { fill='#fffbeb'; stroke='#d97706'; emoji='·'; }
-      else                  { fill='#fff5f5'; stroke='#dc2626'; emoji='·'; }
-
-      s += `<circle cx="${cx}" cy="${cy}" r="${r}"
-        fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
-      // Mini planta encima
-      s += `<text x="${cx}" y="${ty-3}"
-        font-size="10" text-anchor="middle" opacity="0.8">🌿</text>`;
+      const cestaData = getCesta(t, c);
+      const cultivo = CULTIVOS_NFT.find(x => x.nombre === cestaData.variedad);
+      const dias = cestaData.fecha ? Math.floor((Date.now() - new Date(cestaData.fecha)) / 86400000) : 0;
+      let fill, stroke, plantEmoji;
+      if (cestaData.variedad && cultivo) {
+        const pct2 = dias / (cultivo.dias || 50);
+        if (pct2 < 0.2)       { fill='#eff6ff'; stroke='#3b82f6'; plantEmoji='🌱'; }
+        else if (pct2 < 0.5)  { fill='#f0fdf4'; stroke='#16a34a'; plantEmoji=cultivo.emoji; }
+        else if (pct2 < 0.85) { fill='#fffbeb'; stroke='#d97706'; plantEmoji=cultivo.emoji; }
+        else                   { fill='#fff5f5'; stroke='#dc2626'; plantEmoji='✂️'; }
+      } else {
+        fill='#f9fafb'; stroke='#d1d5db'; plantEmoji='';
+      }
+      // Elemento <g> con data attributes para el evento click
+      s += `<g data-t="${t}" data-c="${c}" class="nc" style="cursor:pointer">`;
+      s += `<circle cx="${cx}" cy="${cy}" r="11" fill="rgba(0,0,0,0.05)"/>`;
+      s += `<circle cx="${cx}" cy="${cy}" r="9" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+      if (cestaData.variedad) {
+        s += `<text x="${cx}" y="${ty-2}" font-size="10" text-anchor="middle">${plantEmoji}</text>`;
+        s += `<text x="${cx}" y="${ty+PIPE_H+11}" font-family="Inconsolata,monospace" font-size="8" fill="${stroke}" text-anchor="middle" font-weight="700">${dias}d</text>`;
+        s += `<text x="${cx}" y="${cy+3}" font-family="Inconsolata,monospace" font-size="7" fill="${stroke}" text-anchor="middle">${c+1}</text>`;
+      } else {
+        s += `<text x="${cx}" y="${cy+5}" font-size="13" text-anchor="middle" fill="#9ca3af">+</text>`;
+        s += `<text x="${cx}" y="${ty+PIPE_H+11}" font-family="Inconsolata,monospace" font-size="8" fill="#d1d5db" text-anchor="middle">${c+1}</text>`;
+      }
+      s += `</g>`;
     }
-
-    // Si hay más cestas, indicarlo
     if (cfg.cestas > cestasVer) {
-      s += `<text x="${MARG_L+PIPE_W-4}" y="${ty+PIPE_H/2+4}"
-        font-family="Inconsolata,monospace" font-size="9" fill="${C_MUTED}" text-anchor="end">
-        +${cfg.cestas-cestasVer}</text>`;
+      s += `<text x="${MARG_L+PIPE_W-6}" y="${ty+PIPE_H/2+4}" font-family="Inconsolata,monospace" font-size="9" fill="${C_MUTED}" text-anchor="end">+${cfg.cestas-cestasVer}</text>`;
     }
-
     // Flecha dirección flujo en el tubo — apunta según dirección real
     const arrowCx = MARG_L + PIPE_W/2;
     const arrowCy = ty + PIPE_H/2 + 2;
@@ -1612,50 +1774,114 @@ function actualizarStatsPlantadas() {
 // ══════════════════════════════════════════════════
 // MEDICIONES NFT
 // ══════════════════════════════════════════════════
+function setCardStatus(cardId, statusId, nivel, texto) {
+  const card   = document.getElementById(cardId);
+  const status = document.getElementById(statusId);
+  if (!card || !status) return;
+  const estilos = {
+    ok:   { border:'#16a34a', bg:'#f0fdf4', color:'#14532d', bgStatus:'#dcfce7' },
+    warn: { border:'#d97706', bg:'#fffbeb', color:'#78350f', bgStatus:'#fef3c7' },
+    bad:  { border:'#dc2626', bg:'#fff5f5', color:'#7f1d1d', bgStatus:'#fee2e2' },
+  };
+  const e = estilos[nivel] || estilos.ok;
+  card.style.borderColor  = e.border;
+  card.style.background   = e.bg;
+  status.style.display    = 'block';
+  status.style.color      = e.color;
+  status.style.background = e.bgStatus;
+  status.textContent      = texto;
+}
+
+function resetCard(cardId, statusId) {
+  const card   = document.getElementById(cardId);
+  const status = document.getElementById(statusId);
+  if (card)   { card.style.borderColor = ''; card.style.background = ''; }
+  if (status) { status.style.display = 'none'; }
+}
+
 function evalNFT() {
   const ec   = parseFloat(document.getElementById('nftEC').value);
   const ph   = parseFloat(document.getElementById('nftPH').value);
   const temp = parseFloat(document.getElementById('nftTemp').value);
+  const vol  = parseFloat(document.getElementById('nftVol').value);
+  const volCfg = state.config?.volumen || 50;
 
-  // EC — en NFT rango más amplio 800-2500 según cultivo
-  const statusEC = document.getElementById('statusEC_nft');
-  const cardEC   = document.getElementById('cardEC_nft');
+  // ── EC ──────────────────────────────────────────────────────────────────
   if (!isNaN(ec)) {
-    statusEC.style.display = 'block';
-    if (ec < 800) {
-      statusEC.style.color = '#dc2626'; statusEC.textContent = '🔴 EC crítica — añadir nutrientes urgente';
-      cardEC.style.borderColor = '#dc2626'; cardEC.style.background = '#fff5f5';
-    } else if (ec < 1200) {
-      statusEC.style.color = '#d97706'; statusEC.textContent = '🟡 EC baja — añadir nutrientes';
-      cardEC.style.borderColor = '#d97706'; cardEC.style.background = '#fffbeb';
-    } else if (ec <= 2000) {
-      statusEC.style.color = '#16a34a'; statusEC.textContent = '✅ EC correcta para la mayoría de cultivos NFT';
-      cardEC.style.borderColor = '#16a34a'; cardEC.style.background = '#f0fdf4';
-    } else {
-      statusEC.style.color = '#d97706'; statusEC.textContent = '🟡 EC alta — solo apta para frutos (tomate, pimiento)';
-      cardEC.style.borderColor = '#d97706'; cardEC.style.background = '#fffbeb';
+    if      (ec < 800)  setCardStatus('cardEC_nft','statusEC_nft','bad',  '🔴 EC crítica — añadir nutrientes urgente');
+    else if (ec < 1200) setCardStatus('cardEC_nft','statusEC_nft','warn', '🟡 EC baja — añadir nutrientes');
+    else if (ec <= 2000)setCardStatus('cardEC_nft','statusEC_nft','ok',   '✅ EC correcta para hojas y lechugas');
+    else if (ec <= 3000)setCardStatus('cardEC_nft','statusEC_nft','warn', '🟡 EC alta — solo apta para frutos');
+    else                setCardStatus('cardEC_nft','statusEC_nft','bad',  '🔴 EC excesiva — dilución urgente');
+  } else resetCard('cardEC_nft','statusEC_nft');
+
+  // ── pH ──────────────────────────────────────────────────────────────────
+  if (!isNaN(ph)) {
+    if      (ph < 5.0)  setCardStatus('cardPH_nft','statusPH_nft','bad',  '🔴 pH crítico bajo — añadir pH+ urgente');
+    else if (ph < 5.5)  setCardStatus('cardPH_nft','statusPH_nft','warn', '🟡 pH bajo — añadir pH+');
+    else if (ph <= 6.5) setCardStatus('cardPH_nft','statusPH_nft','ok',   '✅ pH óptimo para NFT');
+    else if (ph <= 7.0) setCardStatus('cardPH_nft','statusPH_nft','warn', '🟡 pH alto — añadir pH-');
+    else                setCardStatus('cardPH_nft','statusPH_nft','bad',  '🔴 pH crítico alto — añadir pH- urgente');
+  } else resetCard('cardPH_nft','statusPH_nft');
+
+  // ── TEMPERATURA ─────────────────────────────────────────────────────────
+  if (!isNaN(temp)) {
+    if      (temp < 14) setCardStatus('cardTemp_nft','statusTemp_nft','bad',  '🔴 Muy fría — crecimiento muy lento');
+    else if (temp < 18) setCardStatus('cardTemp_nft','statusTemp_nft','warn', '🟡 Baja — crecimiento lento');
+    else if (temp <= 22)setCardStatus('cardTemp_nft','statusTemp_nft','ok',   '✅ Temperatura óptima');
+    else if (temp <= 25)setCardStatus('cardTemp_nft','statusTemp_nft','warn', '🟡 Alta — vigilar Pythium');
+    else                setCardStatus('cardTemp_nft','statusTemp_nft','bad',  '🔴 Crítica — riesgo Pythium elevado');
+  } else resetCard('cardTemp_nft','statusTemp_nft');
+
+  // ── VOLUMEN ─────────────────────────────────────────────────────────────
+  if (!isNaN(vol)) {
+    const pct = vol / volCfg;
+    if      (pct < 0.5) setCardStatus('cardVol_nft','statusVol_nft','bad',  '🔴 Reponer agua urgente (< 50%)');
+    else if (pct < 0.7) setCardStatus('cardVol_nft','statusVol_nft','warn', '🟡 Nivel bajo — reponer pronto');
+    else                setCardStatus('cardVol_nft','statusVol_nft','ok',   '✅ Nivel correcto');
+  } else resetCard('cardVol_nft','statusVol_nft');
+
+  // ── CORRECCIONES CALCULADAS ──────────────────────────────────────────────
+  const corr = document.getElementById('nftCorrecciones');
+  const corrContent = document.getElementById('nftCorreccionesContent');
+  const lines = [];
+
+  // Volumen de agua a reponer
+  if (!isNaN(vol) && !isNaN(volCfg) && vol < volCfg) {
+    const aReponer = Math.round((volCfg - vol) * 10) / 10;
+    lines.push('💧 Añadir <strong>' + aReponer + 'L</strong> de agua para reponer el depósito');
+  }
+
+  // EC: cuánto ha bajado y cuánto nutriente añadir
+  if (!isNaN(ec) && ec < 1200) {
+    const ecObjetivo = 1400;
+    const volActual  = !isNaN(vol) ? vol : volCfg;
+    const ecPorMl    = 22; // µS/cm por ml A+B en volActual
+    const mlNecesarios = Math.round((ecObjetivo - ec) / ecPorMl);
+    lines.push('⚡ Para subir EC a ' + ecObjetivo + ' µS/cm: añadir aprox. <strong>' + mlNecesarios + ' ml</strong> de nutrientes A+B');
+  }
+
+  // pH corrección
+  if (!isNaN(ph)) {
+    if (ph > 6.5) {
+      const mlPHMinus = Math.round((ph - 6.2) * 3 * 10) / 10;
+      lines.push('🧪 pH alto — añadir aprox. <strong>' + mlPHMinus + ' ml de pH-</strong> y esperar 15 min');
+    } else if (ph < 5.5) {
+      const mlPHPlus = Math.round((5.8 - ph) * 3 * 10) / 10;
+      lines.push('🧪 pH bajo — añadir aprox. <strong>' + mlPHPlus + ' ml de pH+</strong> y esperar 15 min');
     }
   }
 
-  // pH
-  const statusPH = document.getElementById('statusPH_nft');
-  if (!isNaN(ph)) {
-    statusPH.style.display = 'block';
-    if (ph < 5.5)      { statusPH.style.color='#dc2626'; statusPH.textContent='🔴 pH muy bajo — riesgo toxicidad'; }
-    else if (ph < 6.0) { statusPH.style.color='#d97706'; statusPH.textContent='🟡 pH bajo — vigilar'; }
-    else if (ph <= 6.5){ statusPH.style.color='#16a34a'; statusPH.textContent='✅ pH óptimo NFT'; }
-    else if (ph <= 7.0){ statusPH.style.color='#d97706'; statusPH.textContent='🟡 pH algo alto — vigilar'; }
-    else               { statusPH.style.color='#dc2626'; statusPH.textContent='🔴 pH muy alto — añadir pH-'; }
+  // Pythium warning
+  if (!isNaN(temp) && temp > 24) {
+    lines.push('⚠️ Temperatura crítica — considera añadir agua fría al depósito o instalar enfriador');
   }
 
-  // Temp
-  const statusT = document.getElementById('statusTemp_nft');
-  if (!isNaN(temp)) {
-    statusT.style.display = 'block';
-    if (temp < 16)     { statusT.style.color='#d97706'; statusT.textContent='🟡 Temperatura baja — crecimiento lento'; }
-    else if (temp <= 22){ statusT.style.color='#16a34a'; statusT.textContent='✅ Temperatura óptima'; }
-    else if (temp <= 26){ statusT.style.color='#d97706'; statusT.textContent='🟡 Temperatura alta — vigilar Pythium'; }
-    else               { statusT.style.color='#dc2626'; statusT.textContent='🔴 Temperatura crítica — riesgo Pythium'; }
+  if (lines.length > 0) {
+    corr.style.display = 'block';
+    corrContent.innerHTML = lines.map(l => '<div style="padding:4px 0;border-bottom:1px solid #f3f4f6">→ ' + l + '</div>').join('');
+  } else {
+    corr.style.display = 'none';
   }
 }
 
@@ -1663,30 +1889,54 @@ async function guardarMedicionNFT() {
   const ec    = document.getElementById('nftEC').value;
   const ph    = document.getElementById('nftPH').value;
   const temp  = document.getElementById('nftTemp').value;
+  const vol   = document.getElementById('nftVol').value;
   const notas = document.getElementById('nftNotas').value;
   if (!ec && !ph && !temp) { showToast('Introduce al menos un valor', true); return; }
-  const now = new Date();
-  const dia = String(now.getDate()).padStart(2,'0');
-  const mes = String(now.getMonth()+1).padStart(2,'0');
+
+  const now  = new Date();
+  const dia  = String(now.getDate()).padStart(2,'0');
+  const mes  = String(now.getMonth()+1).padStart(2,'0');
   const fecha = dia+'/'+mes+'/'+now.getFullYear();
   const hora  = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+
   state.mediciones = state.mediciones || [];
-  state.mediciones.push({ fecha, hora, ec, ph, temp, notas });
-  state.ultimaMedicion = { fecha, hora, ec, ph, temp };
+  state.mediciones.unshift({ fecha, hora, ec, ph, temp, vol, notas });
+  if (state.mediciones.length > 50) state.mediciones = state.mediciones.slice(0,50);
+  state.ultimaMedicion = { fecha, hora, ec, ph, temp, vol };
   saveState();
   showToast('✅ Medición guardada');
-  document.getElementById('nftEC').value = '';
-  document.getElementById('nftPH').value = '';
-  document.getElementById('nftTemp').value = '';
-  document.getElementById('nftNotas').value = '';
-  ['statusEC_nft','statusPH_nft','statusTemp_nft'].forEach(id => {
+
+  // Limpiar campos
+  ['nftEC','nftPH','nftTemp','nftVol','nftNotas'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
+    if (el) el.value = '';
   });
-  ['cardEC_nft'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.style.borderColor=''; el.style.background=''; }
+  ['cardEC_nft','cardPH_nft','cardTemp_nft','cardVol_nft'].forEach(id => {
+    resetCard(id, id.replace('card','status').replace('_nft','_nft'));
   });
+  resetCard('cardEC_nft','statusEC_nft');
+  resetCard('cardPH_nft','statusPH_nft');
+  resetCard('cardTemp_nft','statusTemp_nft');
+  resetCard('cardVol_nft','statusVol_nft');
+  document.getElementById('nftCorrecciones').style.display = 'none';
+
+  // Mostrar última medición
+  mostrarUltimaMedNFT();
+}
+
+function mostrarUltimaMedNFT() {
+  const m = state.ultimaMedicion;
+  if (!m) return;
+  const card = document.getElementById('ultimaMedNFTCard');
+  const info = document.getElementById('ultimaMedNFTInfo');
+  if (!card || !info) return;
+  card.style.display = 'block';
+  info.innerHTML =
+    '<span style="color:#6b7280">' + (m.fecha||'') + ' ' + (m.hora||'') + '</span><br>' +
+    (m.ec   ? '⚡ EC: <strong>' + m.ec + '</strong> µS/cm · ' : '') +
+    (m.ph   ? '🧪 pH: <strong>' + m.ph + '</strong> · ' : '') +
+    (m.temp ? '🌡️ <strong>' + m.temp + '</strong>°C · ' : '') +
+    (m.vol  ? '🪣 <strong>' + m.vol + '</strong>L' : '');
 }
 
 // ══════════════════════════════════════════════════
@@ -1696,44 +1946,122 @@ function getLat() { return 39.9864; }
 function getLon() { return -0.0513; }
 
 async function cargarMeteoNFT() {
+  document.getElementById('meteoRiegoInfo').innerHTML =
+    '<div style="text-align:center;padding:8px;color:#9ca3af">⏳ Cargando...</div>';
   try {
     const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + getLat() +
       '&longitude=' + getLon() +
-      '&current=temperature_2m,relative_humidity_2m,windspeed_10m&daily=uv_index_max&forecast_days=1&timezone=auto&models=ecmwf_ifs';
+      '&current=temperature_2m,relative_humidity_2m,windspeed_10m' +
+      '&daily=uv_index_max,temperature_2m_max&forecast_days=1&timezone=auto&models=ecmwf_ifs';
     const res  = await fetch(url);
     const data = await res.json();
-    const temp = data.current.temperature_2m;
-    const hum  = data.current.relative_humidity_2m;
-    const viento = data.current.windspeed_10m;
-    const uv   = data.daily?.uv_index_max?.[0] ?? 0;
-    const pvs  = 0.6108 * Math.pow(1 + temp/100, 8.827);
-    const vpd  = Math.round(pvs * (1 - hum/100) * 100) / 100;
+    const temp    = data.current.temperature_2m;
+    const hum     = data.current.relative_humidity_2m;
+    const viento  = data.current.windspeed_10m;
+    const uv      = data.daily?.uv_index_max?.[0] ?? 0;
+    const tempMax = data.daily?.temperature_2m_max?.[0] ?? temp;
+
+    // VPD cálculo
+    const pvs = 0.6108 * Math.exp(17.27 * temp / (temp + 237.3));
+    const vpd = Math.round(pvs * (1 - hum / 100) * 100) / 100;
+
+    // Temperatura estimada del agua (aprox. 2-4°C por encima de la mínima nocturna en exterior)
+    const tempAgua = state.ultimaMedicion?.temp
+      ? parseFloat(state.ultimaMedicion.temp)
+      : Math.round((temp * 0.7 + tempMax * 0.3) * 10) / 10;
+
+    // Meteo info con impacto NFT
+    const impactoVPD = vpd > 1.6 ? '🔴 Transpiración alta — EC puede subir' :
+                       vpd > 1.0 ? '🟡 Transpiración moderada' :
+                       '✅ Buenas condiciones';
 
     document.getElementById('meteoRiegoInfo').innerHTML =
-      '🌡️ ' + temp + '°C · 💧 ' + hum + '% · ☀️ UV ' + uv + ' · 💨 ' + viento + ' km/h<br>' +
-      '<strong>VPD: ' + vpd + ' kPa</strong> — ' +
-      (vpd > 1.6 ? '🔴 Estrés severo — temperatura agua puede subir' :
-       vpd > 1.2 ? '🟡 Estrés moderado — vigilar temperatura solución' :
-       '✅ Condiciones adecuadas para NFT');
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+        '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px">' +
+          '<div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase">Temperatura</div>' +
+          '<div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:#111827">' + temp + '°C</div>' +
+          '<div style="font-size:11px;color:#6b7280">Máx: ' + tempMax + '°C</div>' +
+        '</div>' +
+        '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px">' +
+          '<div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase">Humedad</div>' +
+          '<div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:#111827">' + hum + '%</div>' +
+          '<div style="font-size:11px;color:#6b7280">VPD: ' + vpd + ' kPa</div>' +
+        '</div>' +
+        '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px">' +
+          '<div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase">UV / Viento</div>' +
+          '<div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:#111827">UV ' + uv + '</div>' +
+          '<div style="font-size:11px;color:#6b7280">💨 ' + viento + ' km/h</div>' +
+        '</div>' +
+        '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px">' +
+          '<div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase">Impacto NFT</div>' +
+          '<div style="font-size:13px;font-weight:700;color:#111827;margin-top:4px">' + impactoVPD + '</div>' +
+        '</div>' +
+      '</div>';
 
-    // Alertas NFT específicas
+    // Temperatura estimada del agua
+    const tempAguaCard = document.getElementById('tempAguaCard');
+    const tempAguaEl   = document.getElementById('tempAguaEstimada');
+    if (tempAguaCard && tempAguaEl) {
+      tempAguaCard.style.display = 'block';
+      const peligro = tempAgua > 24;
+      const aviso   = tempAgua > 22;
+      tempAguaEl.innerHTML =
+        '<div style="font-family:var(--font-display);font-size:28px;font-weight:900;color:' +
+        (peligro ? '#dc2626' : aviso ? '#d97706' : '#0369a1') + '">' + tempAgua + '°C</div>' +
+        '<div style="font-size:12px;color:#6b7280;margin-top:4px">' +
+        (peligro ? '🔴 Peligro Pythium — enfriar depósito urgente' :
+         aviso   ? '🟡 Alta — vigilar diariamente' :
+         '✅ Temperatura adecuada para NFT') + '</div>' +
+        (state.ultimaMedicion?.temp
+          ? '<div style="font-size:11px;color:#9ca3af;margin-top:4px">Dato real de última medición</div>'
+          : '<div style="font-size:11px;color:#9ca3af;margin-top:4px">Estimación basada en temperatura ambiente</div>');
+    }
+
+    // Alertas NFT
     const alertas = [];
-    if (temp > 28) alertas.push('🔴 Temperatura ambiente alta — el agua puede superar 24°C. Riesgo de Pythium.');
-    if (vpd > 1.6) alertas.push('🟡 VPD alto — en NFT el caudal es constante pero las plantas transpiran más. Revisar EC.');
-    if (!state.config?.difusor && temp > 24) alertas.push('⚠️ Sin difusor y temperatura alta — oxígeno disuelto crítico. Instalar difusor urgente.');
-    document.getElementById('nftAlertas').innerHTML = alertas.length > 0
-      ? alertas.map(a => '<div style="margin-bottom:6px">' + a + '</div>').join('')
-      : '<span style="color:#16a34a">✅ Sin alertas activas</span>';
+    if (tempAgua > 25) alertas.push({ tipo:'bad', txt:'🔴 Temperatura del agua crítica (' + tempAgua + '°C) — Pythium inminente. Añadir hielo o enfriador.' });
+    else if (tempAgua > 22) alertas.push({ tipo:'warn', txt:'🟡 Temperatura del agua alta (' + tempAgua + '°C) — vigilar raíces diariamente.' });
+    if (!state.config?.difusor && tempAgua > 22) alertas.push({ tipo:'bad', txt:'⚠️ Sin difusor y temperatura alta — oxígeno disuelto muy bajo. Instalar difusor urgente.' });
+    if (vpd > 1.6) alertas.push({ tipo:'warn', txt:'🌬️ VPD ' + vpd + ' kPa — las plantas transpiran mucho. La EC del depósito subirá más rápido de lo normal.' });
+    if (uv > 8 && !state.config?.calentador) alertas.push({ tipo:'warn', txt:'☀️ UV muy alto (' + uv + ') — cubre el depósito para evitar algas y calentamiento del agua.' });
+
+    const alertasEl = document.getElementById('nftAlertas');
+    alertasEl.innerHTML = alertas.length > 0
+      ? alertas.map(a => {
+          const bg  = a.tipo==='bad' ? '#fef2f2' : '#fffbeb';
+          const col = a.tipo==='bad' ? '#7f1d1d' : '#78350f';
+          return '<div style="background:' + bg + ';color:' + col + ';padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:6px">' + a.txt + '</div>';
+        }).join('')
+      : '<div style="color:#16a34a;font-size:13px;font-weight:600">✅ Sin alertas activas</div>';
 
     // Estado caudal
-    document.getElementById('caudalEstado').innerHTML = state.config
-      ? '⚡ Caudal total: <strong>' + Math.round(state.config.caudalTotal * 10)/10 + ' L/min</strong> · ' +
-        state.config.tubos + ' tubos × 1.5 L/min<br>' +
-        '<span style="color:#6b7280;font-size:12px">Bomba continua 24h · Sin temporizador · Flujo por gravedad</span>'
-      : '<span style="color:#6b7280">Configura tu sistema para ver el análisis de caudal</span>';
+    const caudalEl = document.getElementById('caudalEstado');
+    if (state.config) {
+      const cfg = state.config;
+      caudalEl.innerHTML =
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+          '<div style="background:#e0f2fe;border-radius:10px;padding:10px">' +
+            '<div style="font-size:10px;color:#0369a1;font-weight:600;text-transform:uppercase">Caudal total</div>' +
+            '<div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:#0369a1">' + Math.round(cfg.caudalTotal*10)/10 + ' L/min</div>' +
+            '<div style="font-size:11px;color:#0369a1">' + cfg.tubos + ' tubos × 1.5 L/min</div>' +
+          '</div>' +
+          '<div style="background:#e0f2fe;border-radius:10px;padding:10px">' +
+            '<div style="font-size:10px;color:#0369a1;font-weight:600;text-transform:uppercase">Bomba mín.</div>' +
+            '<div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:#0369a1">' + cfg.caudalLH + ' L/h</div>' +
+            '<div style="font-size:11px;color:#0369a1">~' + cfg.potenciaW + 'W · Head ' + cfg.headMetros + 'm</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-top:8px;font-size:12px;color:#6b7280;padding:6px 8px;background:#f8fafc;border-radius:8px">' +
+          '📐 Pendiente rec.: <strong>' + cfg.pendienteCm + 'cm</strong> de caída · ' +
+          '💧 Caudal por tubo: <strong>1.5 L/min</strong> (óptimo NFT)' +
+        '</div>';
+    } else {
+      caudalEl.innerHTML = '<div class="info-banner" style="margin:0"><span>💡</span><span>Configura tu sistema en la pestaña Sistema</span></div>';
+    }
 
   } catch(e) {
-    document.getElementById('meteoRiegoInfo').textContent = 'Sin conexión meteorológica';
+    document.getElementById('meteoRiegoInfo').innerHTML =
+      '<div class="info-banner" style="margin:0"><span>❌</span><span>Sin conexión — ' + e.message + '</span></div>';
   }
 }
 
@@ -1797,6 +2125,298 @@ function renderConsejosNFT() {
   `).join('');
 }
 function renderConsejos() { renderConsejosNFT(); }
+
+// ══════════════════════════════════════════════════
+// CALENDARIO NFT
+// ══════════════════════════════════════════════════
+let calFechaNFT = new Date();
+
+function calNavegar(dir) {
+  calFechaNFT.setMonth(calFechaNFT.getMonth() + dir);
+  renderCalendarioNFT();
+}
+
+function renderCalendarioNFT() {
+  const hoy   = new Date();
+  const anio  = calFechaNFT.getFullYear();
+  const mes   = calFechaNFT.getMonth();
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  document.getElementById('calTituloNFT').textContent = meses[mes] + ' ' + anio;
+
+  // Construir mapa de eventos del mes
+  const eventos = {};
+
+  // Mediciones registradas
+  (state.mediciones || []).forEach(m => {
+    if (!m.fecha) return;
+    const parts = m.fecha.split('/');
+    if (parts.length < 3) return;
+    const d = parseInt(parts[0]), mo = parseInt(parts[1])-1, a = parseInt(parts[2]);
+    if (mo === mes && a === anio) {
+      const key = d;
+      eventos[key] = eventos[key] || [];
+      eventos[key].push({ tipo:'medicion', color:'#0369a1', label:'📊 Medición' });
+    }
+  });
+
+  // Recargas programadas: cada 14 días desde primera medición
+  if (state.mediciones?.length > 0) {
+    const primera = state.mediciones[state.mediciones.length - 1];
+    if (primera?.fecha) {
+      const parts = primera.fecha.split('/');
+      let base = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+      for (let i = 0; i < 12; i++) {
+        const rec = new Date(base.getTime() + i * 14 * 86400000);
+        if (rec.getMonth() === mes && rec.getFullYear() === anio) {
+          const key = rec.getDate();
+          eventos[key] = eventos[key] || [];
+          eventos[key].push({ tipo:'recarga', color:'#16a34a', label:'💧 Recarga depósito' });
+        }
+      }
+    }
+  }
+
+  // Limpieza recomendada: cada 30 días para sistemas NFT
+  if (state.mediciones?.length > 0) {
+    const primera = state.mediciones[state.mediciones.length - 1];
+    if (primera?.fecha) {
+      const parts = primera.fecha.split('/');
+      let base = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+      for (let i = 1; i <= 6; i++) {
+        const lim = new Date(base.getTime() + i * 30 * 86400000);
+        if (lim.getMonth() === mes && lim.getFullYear() === anio) {
+          const key = lim.getDate();
+          eventos[key] = eventos[key] || [];
+          eventos[key].push({ tipo:'limpieza', color:'#d97706', label:'🧹 Limpieza sistema' });
+        }
+      }
+    }
+  }
+
+  // Cosechas estimadas por cesta
+  if (state.config) {
+    for (let t = 0; t < state.config.tubos; t++) {
+      for (let c = 0; c < state.config.cestas; c++) {
+        const d = getCesta(t, c);
+        if (!d.variedad || !d.fecha) continue;
+        const cultivo = CULTIVOS_NFT.find(x => x.nombre === d.variedad);
+        if (!cultivo) continue;
+        const fechaSiembra = new Date(d.fecha);
+        const fechaCosecha = new Date(fechaSiembra.getTime() + cultivo.dias * 86400000);
+        if (fechaCosecha.getMonth() === mes && fechaCosecha.getFullYear() === anio) {
+          const key = fechaCosecha.getDate();
+          eventos[key] = eventos[key] || [];
+          eventos[key].push({ tipo:'cosecha', color:'#dc2626', label:'✂️ Cosecha T' + (t+1) + ' C' + (c+1) + ' (' + d.variedad + ')' });
+        }
+      }
+    }
+  }
+
+  // Renderizar grid
+  const primerDia = new Date(anio, mes, 1).getDay();
+  const offset    = primerDia === 0 ? 6 : primerDia - 1; // lunes = 0
+  const diasMes   = new Date(anio, mes + 1, 0).getDate();
+  const grid      = document.getElementById('calGridNFT');
+  grid.innerHTML  = '';
+
+  // Celdas vacías al inicio
+  for (let i = 0; i < offset; i++) {
+    grid.innerHTML += '<div></div>';
+  }
+
+  for (let d = 1; d <= diasMes; d++) {
+    const esHoy = (d === hoy.getDate() && mes === hoy.getMonth() && anio === hoy.getFullYear());
+    const evs   = eventos[d] || [];
+    const dots  = evs.slice(0,3).map(e =>
+      '<div style="width:5px;height:5px;border-radius:50%;background:' + e.color + '"></div>'
+    ).join('');
+
+    grid.innerHTML += `<div style="
+      background:${esHoy ? '#0369a1' : evs.length > 0 ? '#f0f9ff' : '#fff'};
+      border:1.5px solid ${esHoy ? '#0369a1' : evs.length > 0 ? '#7dd3fc' : '#e5e7eb'};
+      border-radius:8px; padding:4px 2px; text-align:center; min-height:42px;
+      cursor:${evs.length > 0 ? 'pointer' : 'default'}"
+      onclick="${evs.length > 0 ? 'mostrarEventosDia(' + d + ',' + mes + ',' + anio + ')' : ''}">
+      <div style="font-family:var(--font-display);font-size:12px;font-weight:700;
+        color:${esHoy ? 'white' : '#111827'}">${d}</div>
+      <div style="display:flex;justify-content:center;gap:2px;margin-top:3px;flex-wrap:wrap">${dots}</div>
+    </div>`;
+  }
+
+  // Próximos eventos
+  renderEventosProximosNFT(eventos, anio, mes, hoy);
+}
+
+function mostrarEventosDia(d, mes, anio) {
+  // Reconstruir eventos para ese día
+  const fechaStr = String(d).padStart(2,'0') + '/' + String(mes+1).padStart(2,'0') + '/' + anio;
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const titulo = d + ' de ' + meses[mes] + ' ' + anio;
+  showToast('📅 ' + titulo);
+}
+
+function renderEventosProximosNFT(eventos, anio, mes, hoy) {
+  const el = document.getElementById('calEventosNFT');
+  const esEsteMes = (mes === hoy.getMonth() && anio === hoy.getFullYear());
+  const diaHoy    = esEsteMes ? hoy.getDate() : 1;
+
+  const proximos = [];
+  Object.entries(eventos).forEach(([dia, evs]) => {
+    if (parseInt(dia) >= diaHoy) {
+      evs.forEach(e => proximos.push({ dia: parseInt(dia), ...e }));
+    }
+  });
+  proximos.sort((a, b) => a.dia - b.dia);
+
+  if (proximos.length === 0) {
+    el.innerHTML = '<div style="color:#9ca3af;font-size:13px">No hay eventos este mes</div>';
+    return;
+  }
+
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  el.innerHTML = proximos.slice(0, 8).map(e => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6">
+      <div style="width:36px;height:36px;border-radius:10px;background:${e.color}18;
+                  border:1.5px solid ${e.color}44;display:flex;flex-direction:column;
+                  align-items:center;justify-content:center;flex-shrink:0">
+        <div style="font-family:var(--font-display);font-size:13px;font-weight:800;color:${e.color}">${e.dia}</div>
+        <div style="font-size:8px;color:${e.color};font-weight:600">${meses[mes]}</div>
+      </div>
+      <div style="font-size:13px;color:#374151;font-weight:600">${e.label}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+// HISTORIAL NFT
+// ══════════════════════════════════════════════════
+
+function renderHistorialNFT() {
+  const mediciones = (state.mediciones || []).slice(0, 20);
+
+  // Gráficas
+  dibujarGraficaNFT('chartEC_nft',   mediciones.map(m => parseFloat(m.ec)   || 0), '#0369a1', 1200, 2000);
+  dibujarGraficaNFT('chartPH_nft',   mediciones.map(m => parseFloat(m.ph)   || 0), '#16a34a', 5.5, 7.0);
+  dibujarGraficaNFT('chartTemp_nft', mediciones.map(m => parseFloat(m.temp) || 0), '#d97706', 16, 26);
+  dibujarGraficaNFT('chartVol_nft',  mediciones.map(m => parseFloat(m.vol)  || 0), '#7c3aed', 0, (state.config?.volumen || 50));
+
+  // Tabla
+  const tabla = document.getElementById('tablaHistorialNFT');
+  if (mediciones.length === 0) {
+    tabla.innerHTML = '<div style="color:#9ca3af;font-size:13px;padding:8px">Aún no hay mediciones registradas</div>';
+    return;
+  }
+  tabla.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead>
+      <tr style="border-bottom:2px solid #e5e7eb">
+        <th style="text-align:left;padding:6px 4px;color:#6b7280;font-weight:600">Fecha</th>
+        <th style="text-align:center;padding:6px 4px;color:#0369a1">EC</th>
+        <th style="text-align:center;padding:6px 4px;color:#16a34a">pH</th>
+        <th style="text-align:center;padding:6px 4px;color:#d97706">°C</th>
+        <th style="text-align:center;padding:6px 4px;color:#7c3aed">Vol</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${mediciones.map((m, i) => `
+        <tr style="border-bottom:1px solid #f3f4f6;background:${i===0?'#f0f9ff':''}">
+          <td style="padding:7px 4px;color:#374151;font-size:11px">${m.fecha}<br><span style="color:#9ca3af">${m.hora}</span></td>
+          <td style="text-align:center;padding:7px 4px;font-weight:700;color:#0369a1">${m.ec||'—'}</td>
+          <td style="text-align:center;padding:7px 4px;font-weight:700;color:#16a34a">${m.ph||'—'}</td>
+          <td style="text-align:center;padding:7px 4px;font-weight:700;color:#d97706">${m.temp||'—'}</td>
+          <td style="text-align:center;padding:7px 4px;font-weight:700;color:#7c3aed">${m.vol||'—'}</td>
+        </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function dibujarGraficaNFT(canvasId, datos, color, minVal, maxVal) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx  = canvas.getContext('2d');
+  const W    = canvas.offsetWidth || 140;
+  const H    = 60;
+  canvas.width  = W;
+  canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+
+  const validos = datos.filter(v => v > 0).slice(0, 10).reverse();
+  if (validos.length < 2) {
+    ctx.fillStyle = '#e5e7eb';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Sin datos', W/2 - 20, H/2);
+    return;
+  }
+
+  const minD = Math.min(...validos) * 0.95;
+  const maxD = Math.max(...validos) * 1.05;
+  const range = maxD - minD || 1;
+  const stepX = (W - 16) / (validos.length - 1);
+
+  // Líneas de referencia
+  ctx.strokeStyle = '#f3f4f6';
+  ctx.lineWidth = 1;
+  [0.25, 0.5, 0.75].forEach(p => {
+    const y = H - 8 - p * (H - 16);
+    ctx.beginPath(); ctx.moveTo(8, y); ctx.lineTo(W-8, y); ctx.stroke();
+  });
+
+  // Área rellena
+  ctx.beginPath();
+  ctx.moveTo(8, H - 8);
+  validos.forEach((v, i) => {
+    const x = 8 + i * stepX;
+    const y = H - 8 - ((v - minD) / range) * (H - 16);
+    i === 0 ? ctx.lineTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(8 + (validos.length-1)*stepX, H-8);
+  ctx.closePath();
+  ctx.fillStyle = color + '22';
+  ctx.fill();
+
+  // Línea principal
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  validos.forEach((v, i) => {
+    const x = 8 + i * stepX;
+    const y = H - 8 - ((v - minD) / range) * (H - 16);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Último punto
+  const lastX = 8 + (validos.length-1)*stepX;
+  const lastY = H - 8 - ((validos[validos.length-1] - minD) / range) * (H - 16);
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, 3, 0, Math.PI*2);
+  ctx.fillStyle = color;
+  ctx.fill();
+
+  // Último valor
+  ctx.fillStyle = color;
+  ctx.font = 'bold 10px Inconsolata,monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText(validos[validos.length-1].toFixed(1), W-4, 12);
+  ctx.textAlign = 'left';
+}
+
+function exportarCSV() {
+  const meds = state.mediciones || [];
+  if (meds.length === 0) { showToast('No hay mediciones para exportar', true); return; }
+  const header = 'Fecha,Hora,EC (µS/cm),pH,Temp (°C),Vol (L),Notas';
+  const rows   = meds.map(m =>
+    [m.fecha, m.hora, m.ec, m.ph, m.temp, m.vol, (m.notas||'').replace(/,/g,';')].join(',')
+  );
+  const csv  = [header, ...rows].join(String.fromCharCode(10));
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'nftcaru_mediciones.csv';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('📥 CSV exportado');
+}
 
 // ══════════════════════════════════════════════════
 // TOAST
